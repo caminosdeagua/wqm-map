@@ -10,17 +10,17 @@ Sometimes i depart from this convention for various reasons. For this, I appolog
 by another function, or by a user event like a click or zoom. */
 		
 ////////////////////////////////////////////////////////////////////////////////
-////					 DEFINE GLOBAL VARIABLES 						  	////
-////																		////
+////					 DEFINE GLOBAL VARIABLES 		////
+////										////
 ////	IF YOU'RE TRYING TO CHANGE THE FORMATTING / COLORS / STYLES /		////
 ////		DATASET IN THE EXISTING MAP, YOU SHOULD ONLY NEED TO CHANGE 	////
-////		STUFF IN THIS SECTION. DON'T CHANGE ANYTHING ELSE IF YOU'RE		////
-////		NOT SURE WHAT IT DOES!!!										////
-////																		////
+////		STUFF IN THIS SECTION. DON'T CHANGE ANYTHING ELSE IF YOU'RE	////
+////		NOT SURE WHAT IT DOES!!!					////
+////										////
 ////	IF YOU WANT TO CHANGE SOMETHING FUNDAMENTAL, LIKE WHICH VARIABLES 	////
 ////		CAN BE PLOTTED WITH THR DROPDOWN MENU, PLEASE REFFER TO THE 	////
-////		TUTORIAL VIDEO POSTED ON TRELLO BEFORE PROCEEDING. 				////
-////																		////
+////		TUTORIAL VIDEO POSTED ON TRELLO BEFORE PROCEEDING. 		////
+////										////
 ////////////////////////////////////////////////////////////////////////////////
 
 function setGlobals() {
