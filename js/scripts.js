@@ -7,7 +7,8 @@ if a variable's value can change, its written with the first
 word beginning in lowercase, and the rest beginning upper, as in: helloThereYou. 
 Sometimes i depart from this convention for various reasons. For this, I appologize. =)
 	The functions only run when they're called, either by the html code above,
-by another function, or by a user event like a click or zoom. */
+by another function, or by a user event like a click or zoom.
+I am changing stuff */
 		
 ////////////////////////////////////////////////////////////////////////////////
 ////					 DEFINE GLOBAL VARIABLES 		////
@@ -328,11 +329,19 @@ function plotMarker(type, contam, data_index, border) {
 			})
 			.on('click', function(event) { 						// When the marker is clicked	
 				click_lat = event.latlng.lat; 					// Grab the latLng of the cliked point 
+				click_lng = event.latlng.lng;
 																// 	(returns value of marker's center, regardless of where is clicked...)
-				var j = base.Popups.map(function(a) {return a._latlng.lat}).indexOf(click_lat);
-																// this confusing line gets the index in base.Popups
-																//	of the point with the same latitude as the clicked point
-																// 	we'll use that index to access the marker, popup, and label soon. 
+				var j = -1;
+				
+				//This loops below gets the index of the point with the same latitude and longitude as the clicked points
+				//we'll use that index to access the marker, popup, and label soon. 
+				for (var index =0;index<base.Popups.length;index++){
+					if(base.Popups[index]._latlng.lat == click_lat && base.Popups[index]._latlng.lng == click_lng){
+						j = index;
+						index = base.Popups.length;
+					}
+				}
+				
 				if (type == "base"){ 				// if the marker is a base point without spidered points
 					if(spiderOpen) {				// 	and if another spider is open
 						closeSpider();				//	close that other spider.
