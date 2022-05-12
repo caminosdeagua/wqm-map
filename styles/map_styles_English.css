@@ -135,46 +135,67 @@ allows the user to select the relevant contaminant. */
 	display: block;
 }
 
-div.cartodb-legend {
-	width: 285px;		
+img.legend {
+	position: fixed;
+	width: 400px;
+	z-index: 99;
+	bottom: 22px;
+	right: 5px
 }
 
+@media only screen and (max-width: 445px) {
+	img.legend {
+		width: 90%;
+	}
+}
+	
+
 #how_to_read {
-	display: inline-block;
+	display: block;
 	z-index: 30000;
 	position: absolute;
-	right: 15px;
-	top:4%;
+	right: 20px;
+	top: 20px;
 	height: 200px;
 	box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
 	border-radius: 5%
-	
+}
+
+#how_to_read.inactive{
+	display: none;
 }
 
 .toggle_button {
-	display: inline-block;
+	height: 40px;
+	content: url('https://caminosdeagua.github.io/wqm-map/img/HowToRead_QuestionMark.png');
+	display: block;
 	z-index: 30002;
 	position: absolute;
 	right: 30px;
 	top: 30px;
-}
-
-.toggle_button:hover {
-	cursor: pointer;
-}
-
-#x_button {
-	height: 4%;
-	top: 8%;
-}
-
-#help_button {
-	height: 30px;
 	box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3); 
 	-moz-box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
 	-webkit-box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
 	-o-box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
-	border-radius: 100px;
+	border-radius: 20px;
+}
+
+.toggle_button:hover {
+	content: url('https://caminosdeagua.github.io/wqm-map/img/HowToRead_QuestionMark_hover.png');
+	cursor: pointer;
+}
+
+.toggle_button.active {
+	height: 30px;
+	content: url('https://caminosdeagua.github.io/wqm-map/img/howToRead_X.png');
+	box-shadow: none;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	-o-box-shadow: none;
+}
+
+.toggle_button.active:hover {
+	content: url('https://caminosdeagua.github.io/wqm-map/img/howToRead_X_hover.png');	
 }
 
 #search{
@@ -298,6 +319,8 @@ div#map-tile-selector-div:hover .img-button-middle {
   opacity: 1;
   cursor: pointer;
 }
+
+
 
 #overlay {
 	display: none;
