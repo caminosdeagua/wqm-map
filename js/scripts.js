@@ -1,31 +1,29 @@
-/* This upcoming script tag holds all of the functions and scripts that
-will run. If something isn't in a function, it runs automatically on load.
-Those are mostly global variable and CONSTANT definitions. If a variable's 
-value is constant, it is declared in BLOCK_LETTERS (with underscores between
-words). This is just a personal convention I use to avoid getting confused. 
-if a variable's value can change, its written with the first
-word beginning in lowercase, and the rest beginning upper, as in: helloThereYou. 
-Sometimes i depart from this convention for various reasons. For this, I appologize. =)
-	The functions only run when they're called, either by the html code above,
-by another function, or by a user event like a click or zoom.
-I am changing stuff */
-		
-////////////////////////////////////////////////////////////////////////////////
-////					 DEFINE GLOBAL VARIABLES 		////
-////										////
-////	IF YOU'RE TRYING TO CHANGE THE FORMATTING / COLORS / STYLES /		////
-////		DATASET IN THE EXISTING MAP, YOU SHOULD ONLY NEED TO CHANGE 	////
-////		STUFF IN THIS SECTION. DON'T CHANGE ANYTHING ELSE IF YOU'RE	////
-////		NOT SURE WHAT IT DOES!!!					////
-////										////
-////	IF YOU WANT TO CHANGE SOMETHING FUNDAMENTAL, LIKE WHICH VARIABLES 	////
-////		CAN BE PLOTTED WITH THR DROPDOWN MENU, PLEASE REFFER TO THE 	////
-////		TUTORIAL VIDEO POSTED ON TRELLO BEFORE PROCEEDING. 		////
-////										////
-////////////////////////////////////////////////////////////////////////////////
+/////// FOR DEBUGGING //////
+var t0 = 0
+var t1 = 0
+var t0_add = 0
+var t1_add = 0
+var t0_bin = 0
+var t1_bin = 0
+var t0_removeLayer = 0
+var t1_removeLayer = 0
+var t0_plotMarker = 0
+var t1_plotMarker = 0
+var t0_validCheck = 0
+var t1_validCheck = 0
+
+var binTime = 0
+var addToMapTime = 0
+var plotTime = 0
+var removeLayerTime = 0
+var plotMarkerTime = 0
+var validCheckTime = 0
+
+var countPointIsValidExec = 0
+////////////////////////////
 
 function setGlobals() {
-	for (var k=0; k<BASE_URLS.length; k++) {  	// Grab all the icons with correct size. 
+	for (var k=0; k<BASE_URLS.length; k++) {  	// Grab all the icons with correct size.
 		BASE_ICONS[k] = L.icon({ 			// 	to be used when displaying the base markers
 			iconUrl: BASE_URLS[k],
 			iconSize: EXTRA_SMALL_ICON_SIZE
@@ -34,79 +32,75 @@ function setGlobals() {
 			iconUrl: SPIDER_URLS[k],
 			iconSize: SMALL_ICON_SIZE
 		});
-		BASE_SPIDER_ICONS[k] = L.icon({		// 	and the markers at the base of the spider. 
+		BASE_SPIDER_ICONS[k] = L.icon({		// 	and the markers at the base of the spider.
 			iconUrl: SPIDER_URLS[k],
 			iconSize: LARGE_ICON_SIZE
 		});
 	};
-	
+
 	for (var i=0; i<HISTORICAL_BASE_URLS.length; i++) {
 		for (var j=i; j<HISTORICAL_BASE_URLS[i].length; j++) {
 			HISTORICAL_BASE_ICONS[i][j] = L.icon({
-				iconUrl: HISTORICAL_BASE_URLS[i][j],	
+				iconUrl: HISTORICAL_BASE_URLS[i][j],
 				iconSize: SMALL_ICON_SIZE
 			});
 		}
 	}
-	
+
 	X_ICON = L.icon({ 					// define an icon that can be clicked to close the spider
 		iconUrl: X_URL,
 		iconSize: SMALL_ICON_SIZE
 	});
-	
+
 	for (var i=0; i<document.getElementsByName("no_data").length; i++) {
 		document.getElementsByName("no_data")[i].innerHTML = "<b>"+NO_DATA_MSG+"</b>";
 	}
-	
+
 	for (var i=0; i<document.getElementsByName("f").length; i++) {
 		document.getElementsByName("f")[i].innerHTML = "<b>"+F_LABELS[i]+"</b>";
 	}
-	
+
 	for (var i=0; i<document.getElementsByName("as").length; i++) {
 		document.getElementsByName("as")[i].innerHTML = "<b>"+AS_LABELS[i]+"</b>";
 	}
-	
+
 	for (var i=0; i<document.getElementsByName("risk").length; i++) {
 		document.getElementsByName("risk")[i].innerHTML = RISK_LABELS[i];
 	}
-	
+
 	for (var i=0; i<document.getElementsByName("contam_button").length; i++) {
 		document.getElementsByName("contam_button")[i].innerHTML = CONTAMINANTS[i];
 	}
-	
-	document.getElementById("f_title").innerHTML = F_TITLE;
-	document.getElementById("as_title").innerHTML = AS_TITLE;
-	document.getElementById("risk_title").innerHTML = RISK_TITLE;
-	document.getElementById("how_to_read").src = LEGEND_URL;
-	document.getElementById("help_button").src = HELP_URL;
-	
+
+	document.getElementById("how_to_read").src = HOW2READ_URL;
+
 	document.getElementById("search").innerHTML = SEARCH_HELPER_TEXT;
-	
-	//document.getElementById("img-button-text").innerHTML = SATELLITE_MAP_VIEW;
-	//document.getElementById("map-tile-selector").src = SATELLITE_TILE_THUMBNAIL_URL;
-	
+
 	document.getElementById("overlay_title").innerHTML = DISPLAY_TITLE;
 	document.getElementById("overlay_msg").innerHTML = DISPLAY_MSG;
 	$("#overlay").corner("keep 16px cc:#222");	// adjust inner border corners
 	$("#overlay").css("display", "inline-block");	// display overlay once stuff loads!
-	
+
+	document.getElementById("risk_legend").src = LEGEND_RISK_URL;
+	document.getElementById("fluoride_legend").src = LEGEND_F_URL;
+	document.getElementById("arsenic_legend").src = LEGEND_AS_URL;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 ////					 INITIALIZATION FUNCTION 						  	////
-//////////////////////////////////////////////////////////////////////////////// 
+////////////////////////////////////////////////////////////////////////////////
 
 function init() {
-	
+
 	setGlobals();
 	if (detectMobile()) {adjustDisplayForMobile();}
 	initMap(); 					// Initialize and display the map object
 	applyBaseMap(MAPBOX_STYLES["default"]); 			// Apply the base tiles to the map
-	loadData(TOTAL_RISK); 	// Load the data for Fluoride (the default contaminant)  
-	
-	
-}								
+	loadData();
+
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////					  	initMap FUNCTION	 						  	////
@@ -121,7 +115,7 @@ function initMap() {
 		maxZoom: MAP_MAX_ZOOM,
 		attributionControl: true,
 		fullscreenControl:true
-	});	
+	});
 	map.attributionControl.setPrefix(ATTRIBUTION);
 	map.on('zoomstart', function() { 	// When the map zooms,
 		if (spiderOpen) {				//	if some points are spidered open,
@@ -129,12 +123,12 @@ function initMap() {
 			spiderOpen = true;			//	but save the status that they were open.
 		};
 	});
-	
+
 	map.on('zoomend', function() {	 	// Then when the map finishes zooming,
 		if (spiderOpen) {				// 	if there were previously spidered points open,
 			openSpider(AllData, spiderOpenIndex, activeContaminant);
-		};								// 	re-open the same points at the current zoom level. 
-	});	
+		};								// 	re-open the same points at the current zoom level.
+	});
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,61 +142,79 @@ function applyBaseMap(id) {
 	if (TILE_LAYER) {							// If there is a tile layer
 		var old_layer = TILE_LAYER;
 	}
-	
+
 	/////////////////////////////////////////
 	//mapbox.accessToken = MAPBOX_ACCESS_TOKEN; // These lines are to use Mapbox basemaps
 	//TILE_LAYER = new L.mapbox.tileLayer(id);	// create the new layer
-		
+
 	TILE_LAYER = new L.StamenTileLayer("terrain");
-	
-	
-		
-	
-	
+
+
+
+
+
 	////////////////////////////////////////
 	map.addLayer(TILE_LAYER, {});				// add the new layer
 	CURRENT_TILE_ID = id;						// store the id of the current (new) layer
-	
-	
+
+
 	if (old_layer) {							// if there was an old layer...
 		map.removeLayer(old_layer);				// 	remove the old layer from underneath
 	}
 }
 
 
-function loadData(contaminantToShow) {
+function loadData() {
 	var url = DATA_URL;
 	var options = {sendMethod: 'auto'};
 	var query = new google.visualization.Query(url, options);
 	query.setQuery('select * ORDER BY A DESC, B');				// Relies on A being date and B being name
-	query.send(onQueryResponse);						
+	t0 = performance.now();
+	query.send(onQueryResponse);
 }
 
 function onQueryResponse(response) {
+	t1 = performance.now();
+	console.log('Time taken to get SQL querry response is '+(t1-t0)+' miliseconds');
 	if(response.isError()) {
 		throw new Error("data could not be retieved from Google sheets")
 	} else {
+		t0 = performance.now()
 		AllData = googleDataTable2JSON(response.getDataTable());	// convert data to json, store as global
+		t1 = performance.now()
+		console.log('Time taken to convert to JSON is '+(t1-t0)+' miliseconds');
 		setupSearch();
-		plotData(TOTAL_RISK);												// feed into plotting function											
+		t0 = performance.now()
+		plotData(TOTAL_RISK);												// feed into plotting function
+		t1 = performance.now()
+		plotTime = t1-t0
+		console.log('Time taken to plot data is '+plotTime+' miliseconds, which can be broken down into:');
+
+		console.log('-- Time taken in total to remove previous layer is '+removeLayerTime+' miliseconds, ('+100*removeLayerTime/plotTime+'% of plotting time);');
+		console.log('-- Time taken in total to run plotMarker() fn is '+plotMarkerTime+' miliseconds, ('+100*plotMarkerTime/plotTime+'% of plotting time);');
+		console.log('----- Time taken in total to add all points to map using point.addTo(map) is '+addToMapTime+' miliseconds, ('+100*addToMapTime/plotTime+'% of plotting time and '+100*addToMapTime/plotMarkerTime+'% of plotMarker() time);');
+		console.log('-- Time taken in total to determine bins is '+binTime+' miliseconds, ('+100*binTime/plotTime+'% of plotting time);');
+		console.log('-- Time taken in total to check point validity is '+validCheckTime+' miliseconds, ('+100*validCheckTime/plotTime+'% of plotting time); Nb of execution: '+countPointIsValidExec);
+
+
 	}
 }
 
 function googleDataTable2JSON(dataTable) {
-numCols = dataTable.getNumberOfColumns();
+	numCols = dataTable.getNumberOfColumns();
 	numRows = dataTable.getNumberOfRows();
 
 	var data = [];										// initialze data array to hold json
-	
+
 	for(var i=0; i<numRows; i++) {						// loop through rows
 		data.push({});									// on each row creating a new dictionary
 		for(var j=0; j<numCols; j++) {					// and loop through each column of that row
-			
+
 			var lbl = dataTable.getColumnLabel(j);		// get the name of the column
 			var value = dataTable.getValue(i,j);		// get cell's value
 			if (!value) {								// if a value exists in the cell
 				value = "";
-			} 
+			}
 			data[i][lbl] = value;						// store the "key: value" pair
 		}
 	}
@@ -210,75 +222,78 @@ numCols = dataTable.getNumberOfColumns();
 }
 
 function plotData(contaminantToShow) {
-	if (spiderOpen) {					// if there's a spider open, 
+	if (spiderOpen) {					// if there's a spider open,
 		closeSpider(); 					//	close the spider,
-		spiderOpen = true;				//	but store that the spider is still open. 
+		spiderOpen = true;				//	but store that the spider is still open.
 	};									// (we'll open it back up later...)
 	dup_indices = []; 					// reinitialize global dup_indices as an array
-	points_valid = [];                                      // reinitialize global points_valid as an array
+	points_valid = [];                  // reinitialize global points_valid as an array
 	if (activeContaminant == contaminantToShow) {
 	} else { 							// if the currently-displayed contaminant is
 										//	selected again, don't do anything! Otherwise:
 		if (activeContaminant != NOT_PRESENT) { 	// if there's already a layer being displayed
+			t0_removeLayer = performance.now();
 			for (var l=0; l<base.Markers.length; l++) {
 				if (base.Markers[l]){ 	// if a marker exists,
 					map.removeLayer(base.Markers[l]);
-				};						// clear it, to wipe the map clean. 
+				};						// clear it, to wipe the map clean.
 			};
-			hideLegend();				// and then hide the legend. 
-
+			hideLegend();				// and then hide the legend.
+			t1_removeLayer = performance.now()
+			removeLayerTime = t1_removeLayer - t0_removeLayer
 		};
 		activeContaminant = contaminantToShow;  // Store the contaminant as a global
 		adjustDDText(contaminantToShow); 		// Adjust the text in the drop down menu to display the current contaminant
 		showLegend(contaminantToShow);			// And display the appropriate legend
-	
+
 		base = { 								// reinitialize the global variable base.
 			Markers: [],						// to hold the leaflet marker objects
 			Popups: [],							// to hold the popup object
 			Bins: [],							// to hold the bin value, used for coloring the points
-			Wells: [],			
-			Index: []						
+			Wells: [],
+			Index: []
 		};
-		
+
 		for (i=0;i<AllData.length;i++){ // check the validity of all the points at once
 			points_valid.push(pointIsValid(i));
 		}
+
 		for (i=0; i<AllData.length; i++) { // Loop through all the rows of the AllData
-			if (points_valid[i]) {
+			if ( points_valid[i]) {
 				var worstBin
 				if (!presentIn2dArray(dup_indices, i)[0]) {
-					var matches = 0;		// If the current marker is known to be a duplicate, skip it. 
+					var matches = 0;		// If the current marker is known to be a duplicate, skip it.
 					var j = i;				// 	otherwise, check to see if it has any duplicates. This works
 											//	because we loaded the AllData in chronological order, so the 1st
 											//	element in each row of the duplicate array will be the most recent.
-											// 	And the spider will extend upwards in reverse chronological order. 
+											// 	And the spider will extend upwards in reverse chronological order.
 					while (matches == 0 & j<AllData.length-1) {
-						j++;				// Increment (j) to check out the next AllData point. 							
-											// while there are no matches, and we're still in the AllData array 
+						j++;				// Increment (j) to check out the next AllData point.
+											// while there are no matches, and we're still in the AllData array
 											// Check to see if the current element (i) has the same latLngs
 											//	as each subsequent datapoint (j).
-						
-						if (Math.abs(AllData[i][DATA_NAMES.lat]-AllData[j][DATA_NAMES.lat])<EPS 
+
+						if (Math.abs(AllData[i][DATA_NAMES.lat]-AllData[j][DATA_NAMES.lat])<EPS
 						&& Math.abs(AllData[i][DATA_NAMES.lng]-AllData[j][DATA_NAMES.lng])<EPS &&
 						points_valid[j] ){
-							
+
 							matches++; 		// If so, increment matches to break out of the while-loop
-							dup_indices.push([i,j]); 
-						};					// And save the current index (i) and the 1st duplicate, (j). 			
+							dup_indices.push([i,j]);
+						};					// And save the current index (i) and the 1st duplicate, (j).
 					};
-					if (matches == 1) { // If there's at least one duplicate, there may be more! 
+					if (matches == 1) { // If there's at least one duplicate, there may be more!
 						for (var k=j+1; k<AllData.length; k++) {
 										// Loop through the rest of the AllData points, if there's a match,
 										// 	at index (k), save it after (i) and (j) as [i,j,k1,k2,k3,...]
-							if (Math.abs(AllData[i][DATA_NAMES.lat]-AllData[k][DATA_NAMES.lat])<EPS 
+							if (Math.abs(AllData[i][DATA_NAMES.lat]-AllData[k][DATA_NAMES.lat])<EPS
 							& Math.abs(AllData[i][DATA_NAMES.lng]-AllData[k][DATA_NAMES.lng])<EPS &
-							points_valid[k] ){
+							points_valid[k]){
 								dup_indices[dup_indices.length-1].push(k);
 							};
 						};
 					};
 				};
-				
+
 				if (!presentIn2dArray(dup_indices, i)[0]) {					// plot the base data with no history
 					var border = [false, 0, 0]; 							// use the normal white border on the base points w/o history
 					plotMarker("base", contaminantToShow, i, border, dup_indices);
@@ -287,11 +302,12 @@ function plotData(contaminantToShow) {
 					var border = [true, bin, bin];							// when plotting the point show the same border as the base point
 					plotMarker("preSpider", contaminantToShow, i, border, dup_indices);
 				} else {
-					// Do stuff to the historic points, if you'd like, here. 
+					// Do stuff to the historic points, if you'd like, here.
 				};
-			
+
 			};
 		}
+
 	}
 	if (spiderOpen) { 											// If the spider was open already and closed,
 		if (presentIn2dArray(dup_indices, i)[0]) {
@@ -299,7 +315,6 @@ function plotData(contaminantToShow) {
 		}
 	};
 }
-//// TESTING GOOGLE SHEETS DATA IMPORT!!!! /////////
 
 ////////////////////////////////////////////////////////////////////////////////
 ////					 	plotMarker FUNCTION 						  	////
@@ -312,6 +327,7 @@ function plotData(contaminantToShow) {
 ////////////////////////////////////////////////////////////////////////////////
 
 function plotMarker(type, contam, data_index, border) {
+	t0_plotMarker = performance.now();
 	if (type == "base" | type == "preSpider") {					// If the point to plot is a base point (with or without spidering data)
 		base.Bins.push(getNextMeasuredBin(AllData, i)); 			// Grab the bin of the point
 		var iconToUse;
@@ -327,21 +343,13 @@ function plotMarker(type, contam, data_index, border) {
 			riseOnHover: true,
 			zIndexOffset: BASE_Z_OFFSET
 			})
-			.on('click', function(event) { 						// When the marker is clicked	
-				click_lat = event.latlng.lat; 					// Grab the latLng of the cliked point 
-				click_lng = event.latlng.lng;
+			.on('click', function(event) { 						// When the marker is clicked
+				click_lat = event.latlng.lat; 					// Grab the latLng of the cliked point
 																// 	(returns value of marker's center, regardless of where is clicked...)
-				var j = -1;
-				
-				//This loops below gets the index of the point with the same latitude and longitude as the clicked points
-				//we'll use that index to access the marker, popup, and label soon. 
-				for (var index =0;index<base.Popups.length;index++){
-					if(base.Popups[index]._latlng.lat == click_lat && base.Popups[index]._latlng.lng == click_lng){
-						j = index;
-						index = base.Popups.length;
-					}
-				}
-				
+				var j = base.Popups.map(function(a) {return a._latlng.lat}).indexOf(click_lat);
+																// this confusing line gets the index in base.Popups
+																//	of the point with the same latitude as the clicked point
+																// 	we'll use that index to access the marker, popup, and label soon.
 				if (type == "base"){ 				// if the marker is a base point without spidered points
 					if(spiderOpen) {				// 	and if another spider is open
 						closeSpider();				//	close that other spider.
@@ -357,11 +365,11 @@ function plotMarker(type, contam, data_index, border) {
 						openSpider(AllData, data_index, contam); 	// 	and open the clicked point's spider!
 					}
 				}
-				
+
 			})
 		);
 		base.Markers[base.Markers.length-1].bindLabel(getLabel("community", i), {
-			noHide: false,										// attach labels to all the base points 
+			noHide: false,										// attach labels to all the base points
 			className: "ourLabel"								//	that activate during mouseover
 		});
 
@@ -370,31 +378,28 @@ function plotMarker(type, contam, data_index, border) {
 		} else {														//	in base.Wells, otherwise,
 			base.Wells.push(false);										//	indicate it with a false.
 		}
-		
-		
-		
-		//var orgsArray = AllData[data_index][DATA_NAMES.test_org].split("; ");	// THIS REQUIRES THAT TESTING ORGANIZATIONS ARE
-		//for (var k=0; k<orgsArray.length; k++) {							//	SEPARATED IN THE DATABASE BY A SEMI-COLON AND A SPACE
-		//	if(ORGS.indexOf(orgsArray[k]) == NOT_PRESENT) {					// 	FOR EXAMPLE: "Caminos de Agua; Texas A&M University"
-		//		ORGS.push(orgsArray[k])
-		//	}
-		//}
-		
+
+
 		base.Index.push(data_index);										// store the index in AllData for later access
-		
+
 		var popupText = getBasePopup(i);// Grab the text for the popup at data index i
 		base.Popups.push(L.popup({		// Define the popup for each marker
 			offset: POPUP_OFFSET})
 			.setLatLng(latLng)
 			.setContent(popupText)
 		);
+		t0_add = performance.now()
 		base.Markers[base.Markers.length-1].addTo(map); // And finally, actually add the markers to the map!
+		t1_add = performance.now()
+		addToMapTime = addToMapTime + t1_add - t0_add;
 	} else {						// If the point isn't being displayed, push
 		base.Markers.push(false); 	// 	falses into the array, so that the indexes
-		base.Popups.push(false); 	// 	are the same as in the SQL querried data. 
+		base.Popups.push(false); 	// 	are the same as in the SQL querried data.
 		base.Bins.push(false);
 	}
-}		
+	t1_plotMarker = performance.now();
+	plotMarkerTime = plotMarkerTime + t1_plotMarker - t0_plotMarker;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////					 	getBin FUNCTION 							  	////
@@ -410,17 +415,18 @@ function plotMarker(type, contam, data_index, border) {
 ////////////////////////////////////////////////////////////////////////////////
 
 function getBin(index, bins) {
+	t0_bin = performance.now();
 	var pureBins = Array.from(bins);				// store a copy of bins into pureBins
-	
+
 	if (bins[0]=="combined") {						// if the bins are combined
-		pureBins.splice(0,1);						// get rid of the word 'combined' in pureBins	
+		pureBins.splice(0,1);						// get rid of the word 'combined' in pureBins
 	}
 
 	var values = []; 								// initialize the local array, values
 	var fluoride = -1;
 	var arsenic = -1;
 	if (activeContaminant == FLUORIDE) {			// 	and push the relevant values into it,
-		values.push(AllData[index][DATA_NAMES.f]);	//	depending on the contaminant to deal 
+		values.push(AllData[index][DATA_NAMES.f]);	//	depending on the contaminant to deal
 	} else if (activeContaminant == ARSENIC) { 		// 	with, which is accessed from the global,
 		values.push(AllData[index][DATA_NAMES.as]);	//	"activeContaminant".
 	} else if (activeContaminant == TOTAL_RISK) {	// For the TOTAL_RISK case:
@@ -434,15 +440,15 @@ function getBin(index, bins) {
 				if (arsenic == -1 && (AllData[dup_indices[row][i]][DATA_NAMES.as] != "" && AllData[dup_indices[row][i]][DATA_NAMES.as] != null)) {
 					arsenic = AllData[dup_indices[row][i]][DATA_NAMES.as];
 				}
-			}	
+			}
 		} else {
 			fluoride = AllData[index][DATA_NAMES.f];
 			arsenic = AllData[index][DATA_NAMES.as];
 		}
-		
+
 		values.push(fluoride);
 		values.push(arsenic);
-	}		
+	}
 
 	var nullCounter = 0;					// initialize a counter
 	for (var i=0; i<values.length; i++) {	// count the number of nulls in the values array
@@ -450,13 +456,13 @@ function getBin(index, bins) {
 			nullCounter++
 		}
 	}
-	if (nullCounter == values.length) {		// if it's full of nulls, 
+	if (nullCounter == values.length) {		// if it's full of nulls,
 		return 0;							//	return 0, the code for no data
 	}
-		
-	
+
+
 	var realBin = 1;					// Initialize the bin holder to 1. If we don't find
-										// a bin >1, the bin must be 1. 
+										// a bin >1, the bin must be 1.
 	if (typeof(bins[0]) == "number"){  	// This section deals with the case where there's
 										// 	a single relevant contaminant
 		for (var j=0; j<bins.length; j++) { // Loop through the bins array. If the value is
@@ -464,9 +470,9 @@ function getBin(index, bins) {
 				realBin = j+2;
 			};							// If the bin number hasn't been set, it means
 		};								//	that the marker belongs in bin 0, the default value of realBin.
-	} else if (bins[0] == "combined") { // This section deals with the case where we're 
+	} else if (bins[0] == "combined") { // This section deals with the case where we're
 										// 	aggregating multiple contaminants into a "risk scale."
-		
+
 		for (var contam = 0; contam<values.length; contam++) {						// loop through the contaminants
 			for (var level = 0; level<COLORS[contam].length; level++) {				// within each contaminant, loop through the bin cutoffs
 				if (values[contam] > BINS[pureBins[contam]][level]) {				// if the value exceeds the cutoff level:
@@ -475,13 +481,15 @@ function getBin(index, bins) {
 					}
 				}
 			}
-		}					
+		}
 	} else {
 		// if you have any other types of layers you'd like to include,
 		//	they should go in the "else" here or in an "else if" where
 		// 	you can parse the bin. Good luck!
 	};
-	return realBin;	
+	t1_bin = performance.now();
+	binTime = binTime + t1_bin - t0_bin;
+	return realBin;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -495,46 +503,46 @@ function getBin(index, bins) {
 ////	be plotted sequentially. When a spidered point is clicked, it's 	////
 ////	popup appears. 														////
 ////////////////////////////////////////////////////////////////////////////////
-	
+
 function openSpider(data, i, contam) {
 	var features = [];										// initialize a local array to store the features
 	row = presentIn2dArray(dup_indices, i)[1][0];			// get the row of dup_indices where the index exists
-	for (var j=0; j<dup_indices[row].length; j++) {			// loop through that row of dup_indices. I.e., loop 
+	for (var j=0; j<dup_indices[row].length; j++) {			// loop through that row of dup_indices. I.e., loop
 															//	through all the data-indices of points to spider
 		z = dup_indices[row][j]; 							// set z to each index in turn
-		var spiderBin = getBin(z, BINS[contam]); // set the latLng, then modify it 
+		var spiderBin = getBin(z, BINS[contam]); // set the latLng, then modify it
 		var shiftedLatLng = adjustLatLng(data[z][DATA_NAMES.lat], data[z][DATA_NAMES.lng], dup_indices[row].length, j);
 		var prevShiftedLatLng = adjustLatLng(data[z][DATA_NAMES.lat], data[z][DATA_NAMES.lng], dup_indices[row].length, j-1);
 															// get the shifted latlng value of the marker
-															// then define the popup format. 
-		var popupText = getBasePopup(z);					// grab the text for the popup		
+															// then define the popup format.
+		var popupText = getBasePopup(z);					// grab the text for the popup
 		if (j==0) {											// if we're dealing with the base point of the spider
 			features.push(L.marker(shiftedLatLng, {			// push the marker onto the features array
 				icon: BASE_SPIDER_ICONS[COLORS[activeContaminant][spiderBin]],
 				zIndexOffset: SPIDER_Z_OFFSET
-			}));	
+			}));
 		} else {
 			features.push(L.marker(shiftedLatLng, {			// if we're not dealing with the base
 				icon: SPIDER_ICONS[COLORS[activeContaminant][spiderBin]],				// also push the marker onto the features array.
 				zIndexOffset: SPIDER_Z_OFFSET
-			}));		
+			}));
 			var popupText = getLabel("hist", 0)+popupText;	// adjust the popup text to note "historical data"
 			features.push(L.polyline([shiftedLatLng, prevShiftedLatLng],{
 				color: POLY_COLOR,							// push a polyline connecting the current
-				weight: POLY_WEIGHT,									// 	point and the previous one onto the 
+				weight: POLY_WEIGHT,									// 	point and the previous one onto the
 				opacity: POLY_OPACITY,									// 	featurs array
 			}));
 		};
 		if (j==0) {						// if we're dealing with the base point
 			var marker_index = 0;		// 	set the marker index to 0
-		} else {						// otherwise, the markers are odd and 
+		} else {						// otherwise, the markers are odd and
 			var marker_index = 2*j-1;	// 	their polylines are the following evens
 			var polyline_index = 2*j;
-		};	
+		};
 		features[marker_index].bindLabel(getLabel("month", z)+",\xa0"+getLabel("year", z), {
 			noHide: true,				// bind labels displaying the date
 			className: "yearLabel",		// 	permanently next to each spidered point
-			offset: SPIDER_LABEL_OFFSET						
+			offset: SPIDER_LABEL_OFFSET
 		});
 		features[marker_index].bindPopup(popupText, {
 			offset: POPUP_OFFSET 		// bind the appropriate popup to each marker
@@ -545,16 +553,16 @@ function openSpider(data, i, contam) {
 			});
 		};
 	}
-	
+
 	var shiftedLatLng = adjustLatLng(data[z][DATA_NAMES.lat], data[z][DATA_NAMES.lng], dup_indices[row].length, j);
 	var prevShiftedLatLng = adjustLatLng(data[z][DATA_NAMES.lat], data[z][DATA_NAMES.lng], dup_indices[row].length, j-1);
 	features.push(L.marker(shiftedLatLng, {	// get the newest shifted point values
 		icon: X_ICON,						// 	to plot the x-out icon at the top
-		zIndexOffset: X_OFFSET				// 	of the spider stack. 
+		zIndexOffset: X_OFFSET				// 	of the spider stack.
 	}).on('click', function() {				// When the x-out is clicked,
-		closeSpider();						//	close the spider. 
+		closeSpider();						//	close the spider.
 	}));
-	
+
 	features.push(L.polyline([shiftedLatLng, prevShiftedLatLng],{
 		color: POLY_COLOR,					// push a polyline connecting the x-out
 		weight: POLY_WEIGHT,							//	button and the oldest spidered point.
@@ -564,7 +572,7 @@ function openSpider(data, i, contam) {
 	}));
 											// Finally, add the whole spider featureGroup to the map!
 	spiderFeatures = L.featureGroup(features).addTo(map);
-	spiderOpenIndex = i;					// set the gloabl spider index 
+	spiderOpenIndex = i;					// set the gloabl spider index
 	spiderOpen = true;						//	and status. Wooohooo! Spider plotted!
 }
 
@@ -585,7 +593,7 @@ window.onclick = function(event) {
 				openDropdown.classList.remove('show');
 			}
 		}
-	} 
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -596,7 +604,7 @@ window.onclick = function(event) {
 
 function adjustDDText(contam) {
 	var pointDown = '\xa0\xa0\xa0\u25BC'; 	// The value of a downwards pointing arrow
-											// 	preceeded by 3 spaces. 
+											// 	preceeded by 3 spaces.
 	document.getElementById('DDHeader').textContent = CONTAMINANTS[contam]+pointDown;
 }
 
@@ -622,62 +630,62 @@ function getBasePopup(i) {
 	var month = MONTHS[date.getMonth()];									// get three letter code in appropriate language for month
 	var year = String(date.getFullYear());									// get 4digit year
 	date = day + "-" + month + "-" + year;									// concatenate day, month, year into string
-	date = "<strong>" + DATE_MESSAGE + ": </strong>" + date;				// add label			
+	date = "<strong>" + DATE_MESSAGE + ": </strong>" + date;				// add label
 	var docPath = AllData[i][DATA_NAMES.docs];								// grab document path from dataset
-	var site, docLink, f_numb, f_txt, as_numb, as_txt, test_org;					// initialize variables			
+	var site, docLink, f_numb, f_txt, as_numb, as_txt, test_org;					// initialize variables
 
 	if (!AllData[i][DATA_NAMES.site_type]) {
 		site = NO_DATA_MSG;
 	} else {
 		site = "<strong>" +WATER_SOURCE_MESSAGE + ": </strong>" + AllData[i][DATA_NAMES.site_type];
 	}
-	
-	
+
+
 	if (!AllData[i][DATA_NAMES.f] | AllData[i][DATA_NAMES.f] == "") {		// if there is no fluoride data
 		f_txt = NO_DATA_MSG;												// load the no data message
 	} else {																// otherwise, load the fluoride value
 		f_txt = "<h3>"+CONTAMINANTS[0]+"</h3>" + "<h4>" + String(AllData[i][DATA_NAMES.f]) + " " + F_UNITS + "</h4>";
 		if (AllData[i][DATA_NAMES.forg] && AllData[i][DATA_NAMES.fmethod]) {
-			f_txt = f_txt + "<h5>" + TESTED_BY + AllData[i][DATA_NAMES.forg] + ", " + AllData[i][DATA_NAMES.fmethod] + "</h5>";	
+			f_txt = f_txt + "<h5>" + TESTED_BY + AllData[i][DATA_NAMES.forg] + ", " + AllData[i][DATA_NAMES.fmethod] + "</h5>";
 		} else if (AllData[i][DATA_NAMES.forg]) {
 			f_txt = f_txt + "<h5>" + TESTED_BY + AllData[i][DATA_NAMES.forg] + "</h5>";
 		} else if (AllData[i][DATA_NAMES.fmethod]) {
 			f_txt = f_txt + "<h5>" + AllData[i][DATA_NAMES.fmethod] + "</h5>";
 		}
 	};
-	
+
 	if (!AllData[i][DATA_NAMES.as] | AllData[i][DATA_NAMES.as] == "") {		// if there is no arsenic data
 		as_txt = NO_DATA_MSG;												// load the no data message
 	} else {																// otherwise, load the arsenic value
 		as_txt = "<h3>"+CONTAMINANTS[1]+"</h3>" + "<h4>" + String(AllData[i][DATA_NAMES.as]) + " " + AS_UNITS + "</h4>";
 		if (AllData[i][DATA_NAMES.asorg] && AllData[i][DATA_NAMES.asmethod]) {
-			as_txt = as_txt + "<h5>" + TESTED_BY + AllData[i][DATA_NAMES.asorg] + ", " + AllData[i][DATA_NAMES.asmethod] + "</h5>";	
+			as_txt = as_txt + "<h5>" + TESTED_BY + AllData[i][DATA_NAMES.asorg] + ", " + AllData[i][DATA_NAMES.asmethod] + "</h5>";
 		} else if (AllData[i][DATA_NAMES.asorg]) {
 			as_txt = as_txt + "<h5>" + TESTED_BY + AllData[i][DATA_NAMES.asorg] + "</h5>";
 		} else if (AllData[i][DATA_NAMES.asmethod]) {
 			as_txt = as_txt + "<h5>" + AllData[i][DATA_NAMES.method] + "</h5>";
 		}
 	};
-	
+
 	if(docPath) {															// if there is a document
-		docLink = "<h3><a href="+ docPath +" target='_blank'>"+SEE_MORE+"</a></h3>";	// setup a link 
+		docLink = "<h3><a href="+ docPath +" target='_blank'>"+SEE_MORE+"</a></h3>";	// setup a link
 	} else {																// otherwise don't.
 		docLink = ""
 	}
-	
+
 	// based on the above gets, fill in the popup:
-	
+
 	var pop = "<h1>" + AllData[i][DATA_NAMES.name] + "</h1>"	// This text will be displayeD in the popup for this point.
 		+ "<hr>"
-		+ "<h4>" 
-		+ date + "<br>" 
+		+ "<h4>"
+		+ date + "<br>"
 		+ site
 		+ "</h4>"
 		+ "<hr>"
 		+ f_txt
 		+ as_txt
 		+ docLink
-		
+
 	return pop;
 }
 
@@ -691,7 +699,7 @@ function getBasePopup(i) {
 ////				y -> y - Y_STRETCH*i									////
 ////////////////////////////////////////////////////////////////////////////////
 
-function adjustLatLng(lat, lng, total_pts, i) { 				
+function adjustLatLng(lat, lng, total_pts, i) {
 	var latLng = L.latLng([lat, lng]);					// build a latLng object
 	var ll_point = map.latLngToContainerPoint(latLng);	// convert to container point with [x, y] coords, then shift
 	var x = ll_point.x - (X_STRETCH/total_pts)*i*i; 	// get the shifted x
@@ -704,14 +712,14 @@ function adjustLatLng(lat, lng, total_pts, i) {
 ////					 	presentIn2dArray FUNCTION 					  	////
 //// 	Takes in a 2D array and a value, and returns an array of the form 	////
 //// 	[exists?, [index0, index1]] where "exists?" is a boolean, true if 	////
-//// 	the value exists in the array, at the coordinates [index0][index1].	//// 
+//// 	the value exists in the array, at the coordinates [index0][index1].	////
 ////																		////
 ////	THIS FUNCTION ONLY WORKS IF THERE ARE NO REPEATS. OTHERWISE IT WILL	////
 ////	RETURN THE 1ST INSTANCE OF value IN array.							////
 ////////////////////////////////////////////////////////////////////////////////
 
 function presentIn2dArray(array, value) {
-	var exists = false; 					// if we don't find value in array, we'll return false. 
+	var exists = false; 					// if we don't find value in array, we'll return false.
 	var index = [NOT_PRESENT, NOT_PRESENT];					// if we don't find value in array, we'll return [-1,-1] as it's coordinates.
 	for (var a=0; a<array.length; a++) {		// loop through each subArray
 		if (array[a].indexOf(value) > NOT_PRESENT) { // if the value exists in that subArray
@@ -719,7 +727,7 @@ function presentIn2dArray(array, value) {
 			index = [a, array[a].indexOf(value)]; 	// and set the indices
 		};
 	};
-	return [exists, index]; 			
+	return [exists, index];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -741,13 +749,13 @@ function getNextMeasuredBin(data, i) {
 		dup_row = dup_indices[presentIn2dArray(dup_indices, i)[1][0]];
 		for (var j=dup_row.length-1; j>=0; j--){						// loop through all the duplicates (going from oldest to newest)
 			bin = getBin(dup_row[j], BINS[activeContaminant])		// get the bin of each duplicate
-			if (bin != 0) {												
+			if (bin != 0) {
 				nextBin = bin;
-			}					
+			}
 		}
 	};
 	return nextBin;
-	
+
 
 
 
@@ -763,7 +771,7 @@ function getNextMeasuredBin(data, i) {
 function getLabel(type, i) {
 	date = AllData[i][DATA_NAMES.date]
 	if (type == "year") {
-		return date.getFullYear();		
+		return date.getFullYear();
 	} else if (type == "month") {
 		return MONTHS[date.getMonth()];
 	} else if (type == "community") {
@@ -773,7 +781,7 @@ function getLabel(type, i) {
 		var lineCount = 1;
 		for (var i=0; i<str.length; i++) {
 			tempNewStr = newStr+"\xa0"+str[i]
-			if(tempNewStr.length>MAX_LABEL_LINE_CHARS*lineCount & i!=0) {	
+			if(tempNewStr.length>MAX_LABEL_LINE_CHARS*lineCount & i!=0) {
 				newStr = newStr+"\xa0\n\xa0"+str[i];
 			} else {
 			newStr = tempNewStr;
@@ -801,7 +809,7 @@ function hideLegend() {
 //// 	This function shows the div legend for the relevant contaminant.	////
 ////////////////////////////////////////////////////////////////////////////////
 
-function showLegend(contam) { 
+function showLegend(contam) {
 	if (contam == FLUORIDE) {
 		document.getElementById('fluoride_legend').style.display = 'block';
 	} else if (contam == ARSENIC) {
@@ -816,10 +824,10 @@ function showLegend(contam) {
 //// 	Closes all points stored in the global var spiderFeatures.			////
 ////////////////////////////////////////////////////////////////////////////////
 
-function closeSpider() { 				
+function closeSpider() {
 	if (spiderFeatures) {				// if spiderFeatures exists (if a spider is open)
-		map.removeLayer(spiderFeatures)	// 	then remove it!		
-	};						
+		map.removeLayer(spiderFeatures)	// 	then remove it!
+	};
 	spiderOpen = false;					// reset the global flag that the spider is closed
 }
 
@@ -829,7 +837,7 @@ function closeSpider() {
 ////////////////////////////////////////////////////////////////////////////////
 
 function removePoint(i) {
-	map.removeLayer(base.Markers[i]); 
+	map.removeLayer(base.Markers[i]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -839,7 +847,7 @@ function removePoint(i) {
 
 $(document).bind('keypress', function (event) {
 	if(String(event.originalEvent.key) == "Escape") {
-		closeSpider();	
+		closeSpider();
 	}
 })
 
@@ -850,32 +858,37 @@ $(document).bind('keypress', function (event) {
 ////	hovering over it.													////
 ////////////////////////////////////////////////////////////////////////////////
 
-function changeHelpSrc(type) {
-	if (type == "hover") {
-		document.getElementById("help_button").src = HELP_URL_HOVER;
-	} else {
-		document.getElementById("help_button").src = HELP_URL;
-	}
-}
+//function changeHelpSrc(type) {
+//	if (type == "hover") {
+//		document.getElementById("help_button").src = HELP_URL_HOVER;
+//	} else {
+//		document.getElementById("help_button").src = HELP_URL;
+//	}
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////					 	openHelp/closeHelp FUNCTION 				  	////
 //// 			Opens/closes the help dialog box.							////
 ////////////////////////////////////////////////////////////////////////////////
 
-
-function openHelp() {
-	document.getElementById("help_button").style.display = "none";
-	document.getElementById("how_to_read").style.display = "inline-block";
-	document.getElementById("x_button").style.display = "inline-block";
+function toggleHelp() {
+	$('#help_button').toggleClass('active');
+	$('#how_to_read').toggleClass('inactive');
 }
 
-function closeHelp () {
-	document.getElementById("help_button").style.display = "inline-block";
-	document.getElementById("how_to_read").style.display = "none";
-	document.getElementById("x_button").style.display = "none";
-	
-}
+
+//function openHelp() {
+//	document.getElementById("help_button").style.display = "none";
+//	document.getElementById("how_to_read").style.display = "inline-block";
+//	document.getElementById("x_button").style.display = "inline-block";
+//}
+//
+//function closeHelp () {
+//	document.getElementById("help_button").style.display = "inline-block";
+//	document.getElementById("how_to_read").style.display = "none";
+//	document.getElementById("x_button").style.display = "none";
+//
+//}
 
 ///////////////////////////////////////////////////////////////////
 ////			function enable/disableMapControls 				////
@@ -924,32 +937,32 @@ function enableMapControls() {
 function easterEggGo() {
 	console.log(PRINTING_SUMMARY_MSG)
 	//////// 	total sites sampled					/////////
-	
+
 	console.log(TOTAL_SITES_MSG+"\xa0"+base.Markers.length)		// length of base.Markers = number of base points
-	
+
 	////////	total wells	sampled					/////////
-	
+
 	wellCounter = 0;											// base.Wells is all the base points and reads 1
 	for(var i=0; i<base.Wells.length; i++) {					//	for a well, and 0 for anything else. So adding
 		wellCounter = wellCounter+base.Wells[i];				// 	them up = # of distinct wells sampled
 	}
 	console.log(TOTAL_WELLS_MSG+"\xa0"+wellCounter);
-	
+
 	////////	total number datapoints taken		/////////
-	
+
 	var dups = 0;												// get the total number of duplicates (indluding base points)
-	for(var i=0; i<dup_indices.length; i++) {					
+	for(var i=0; i<dup_indices.length; i++) {
 		dups = dups + dup_indices[i].length;
 	}															// subtract dup_indices.length, the number of base points with duplicates to avoid double counting
-	var totalPoints = dups - dup_indices.length + base.Markers.length	// 	then add all the base points to get total number of samples incorporated in map. 
-	console.log(TOTAL_POINTS_MSG+"\xa0"+totalPoints)				
-	
+	var totalPoints = dups - dup_indices.length + base.Markers.length	// 	then add all the base points to get total number of samples incorporated in map.
+	console.log(TOTAL_POINTS_MSG+"\xa0"+totalPoints)
+
 	////////	number of partners	/////////
 	console.log(TOTAL_ORGS_MSG+"\xa0"+ORGS.length);
-	
-	////////	names of partners	///////// 	
+
+	////////	names of partners	/////////
 	console.log(ORG_NAMES_MSG+"\xa0"+ORGS)
-	
+
 	////////	number of sites currently above F-As-Both		/////////
 	var bothBins = Array.apply(null, Array(base.Index.length)).map(Number.prototype.valueOf,0);
 	var binCounters = Array.apply(null, Array(CONTAMINANTS.length-1)).map(Number.prototype.valueOf, 0);
@@ -959,14 +972,14 @@ function easterEggGo() {
 		for (var contam=0; contam<CONTAMINANTS.length-1; contam++) {	// loop through all the contaminant categories, excluding the last one (assumed to be total risk);
 			activeContaminant = contam;									// set the active contaminant to whatever contaminant you're getting the bins for (sorry this is a terrible work-around =/  )
 			bothBins[pt][contam]=getBin(base.Index[pt], BINS[contam])	// store the value of the bin into bothBins array
-			if (bothBins[pt][contam] > 1) {								// if 
+			if (bothBins[pt][contam] > 1) {								// if
 				binCounters[contam] = binCounters[contam] + 1;
 			}
 		}
 		activeContaminant = storedActiveContaminant						// reset the active contaminant
-		
+
 	}
-	
+
 	////////	display results for F/As/contamination data...	////////
 	for (var i=0; i<CONTAMINANTS.length-1; i++) {
 		console.log("\n"+CONTAMINANT_HEADER_MSG+"\xa0"+CONTAMINANTS[i]+"\xa0"+CONTAMINANT_HEADER_MSG);
@@ -976,8 +989,8 @@ function easterEggGo() {
 				if (bothBins[k][i] == j+2) {
 					binstances++;
 				}
-			
-			
+
+
 			}
 			console.log(CONTAM_LIMIT_MSG+"\xa0"+LABELS[i][j+1]+": "+binstances);		// print each bin value for each contam
 		}
@@ -991,8 +1004,8 @@ function easterEggGo() {
 	}
 	console.log("\n"+CONTAMINANT_HEADER_MSG+"\xa0"+BOTH_MSG+"\xa0"+CONTAMINANT_HEADER_MSG);
 	console.log(TOTAL_ABOVE_BOTH_MSG+"\xa0"+bothAboveCounter)
-	
-	
+
+
 }
 
 function setupSearch() {
@@ -1002,15 +1015,15 @@ function setupSearch() {
 	});
 	for(var i=0; i<AllData.length; i++) {
 		SEARCH_INDEX.addDoc(AllData[i]);
-	}	
+	}
 	$('#search').bind('keyup',function(event) {
 		var key = String.fromCharCode(event.keyCode);
 		if (/[a-zA-Z0-9-_ ]/.test(key) || event.keyCode == "8") { //if letter, or number or symbol or delete
 			loadNewSearchResults(this.value)
 		}
 	})
-	
-	$("#searchBar").submit(function() {			
+
+	$("#searchBar").submit(function() {
 		loadNewSearchResults(this.children[0].value);
 		return false
 	})
@@ -1020,11 +1033,11 @@ function setupSearch() {
 function focused(el) {
 	if(el.value == SEARCH_HELPER_TEXT) {
 		el.value = "";
-	} 
+	}
 }
 
 function blurred(el) {
-	
+
 	if(el.value == "") {
 		el.value = SEARCH_HELPER_TEXT;
 	}
@@ -1036,7 +1049,7 @@ function loadNewSearchResults(key) {
 	if (key == "") {					// if there is no text entered
 		document.getElementById('search-dropdown').style.display = "none";
 	} else {							// if there is text entered
-		var res = SEARCH_INDEX.search(key);	// get all search results		
+		var res = SEARCH_INDEX.search(key);	// get all search results
 		if(res.length>MAX_SEARCH_LENGTH) {res.length = MAX_SEARCH_LENGTH};	// caps length of results
 		dd.innerHTML = "";
 		var padLeft = getComputedStyle(document.getElementById('search')).paddingLeft;
@@ -1048,7 +1061,7 @@ function loadNewSearchResults(key) {
 		width = String(width + padLeft + padRight)+"px";
 		document.getElementById('search-dropdown').style.width = width;
 		if (res.length != 0) { 				// if some results have been found...
-			
+
 			for(var i=0; i<res.length; i++) {
 				//console.log(res[i]);
 				var lat = res[i].doc.latitude;
@@ -1082,7 +1095,7 @@ function toggleTileView() {
 }
 
 function beginUserExperience() {
-	$("#overlay").fadeOut(800, function() {});	// fade out the overlay	
+	$("#overlay").fadeOut(800, function() {});	// fade out the overlay
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -1100,27 +1113,39 @@ function detectMobile() {	// Thanks to Michael Zaporozhets for this function: ht
 };
 
 function adjustDisplayForMobile() {
-	closeHelp();
+	toggleHelp();
 	console.log(document.getElementById("overlay_title").style.fontSize = "36px");
 	console.log(document.getElementById("overlay_msg").style.fontSize = "22px");
 }
 
 function pointIsValid(i) {		//checks if that points at AllData[i] is valid. If so, returns true. Else, returns false.
+    countPointIsValidExec ++; // debug
+	t0_validCheck = performance.now();
 	if( AllData[i][DATA_NAMES.lat] == null | AllData[i][DATA_NAMES.lat] == "" |	//	make sure, for a given point, that the
 		AllData[i][DATA_NAMES.lng] == null | AllData[i][DATA_NAMES.lng] == "" |			//	lat, lng, and date are all present
 		AllData[i][DATA_NAMES.date] == NOT_PRESENT ) {
+		t1_validCheck = performance.now();
+		validCheckTime = validCheckTime + t1_validCheck - t0_validCheck;
 		return false
-	} 
+	}
 	if( activeContaminant == FLUORIDE &&				// if we're looking at fluoride points
 		(AllData[i][DATA_NAMES.f] == null | AllData[i][DATA_NAMES.f] == "")) {	// only show points who have a fluoride value
+		t1_validCheck = performance.now();
+		validCheckTime = validCheckTime + t1_validCheck - t0_validCheck;
 		return false
 	} else if ( activeContaminant == ARSENIC &&				// if we're only looking at arsenic points
 		(AllData[i][DATA_NAMES.as] == null | AllData[i][DATA_NAMES.as] == "") ) {	// only show points who have an arsenic value
+		t1_validCheck = performance.now();
+		validCheckTime = validCheckTime + t1_validCheck - t0_validCheck;
 		return false
 	} else if ( activeContaminant == TOTAL_RISK && 			// if we're showing total risk, only show points
 	( 	(AllData[i][DATA_NAMES.f] == null | AllData[i][DATA_NAMES.f] == "") &&		// that have either an arsenic or fluoride value
 		(AllData[i][DATA_NAMES.as] == null | AllData[i][DATA_NAMES.as] == "") )) {
-		return false	
-	} 
-	return true	
+		t1_validCheck = performance.now();
+		validCheckTime = validCheckTime + t1_validCheck - t0_validCheck;
+		return false
+	}
+	t1_validCheck = performance.now();
+	validCheckTime = validCheckTime + t1_validCheck - t0_validCheck;
+	return true
 }
