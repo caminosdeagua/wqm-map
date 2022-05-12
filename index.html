@@ -56,20 +56,9 @@
 			</a>
 		</div>
 		
-		<!-- THIS IS THE BOX THAT ALLOWS YOU TO SELECT SATELLITE/STREET VIEW
-		TO UNCOMMENT ALSO SEE THE TWO LINES IN setGlobals() fn in scripts.js
-		
-		<div class="container" id="map-tile-selector-div">
-			<img class="img-button-image" id="map-tile-selector">
-			</img>
-			<div class="img-button-middle" onclick="toggleTileView();">
-				<div class="img-button-text" id="img-button-text"></div>
-			</div>
-		</div> -->
-		
-		<div id='WaterMap'> 	<!-- creates the div element that holds the map -->
+		<div id='WaterMap'> 	
 				
-			<div class="dropdown"> <!-- this next block of code creates the dropdown menu --> 
+			<div class="dropdown"> 
 				<button id="DDHeader" onclick="toggleDD();" class="dropbtn", id="loading_indicator"></button> <!-- what to do when dropdown button is pressed -->
 				<div id="mapSelector" class="dropdown-content" onmouseenter="disableMapControls();" onmouseleave="enableMapControls();">
 					<a onclick="plotData(FLUORIDE);" name="contam_button"></a> <!-- what to do when a contaminant/map layer is selected -->
@@ -81,81 +70,19 @@
 			<form id="searchBar">
 				<input id="search" type="text" autocomplete="off"  onmouseenter="disableMapControls();" onmouseleave="enableMapControls();" onfocus="focused(this);" onblur="blurred(this);"></input>
 			</form>
+			
 			<div id="search-dropdown" onmouseenter="disableMapControls();" onmouseleave="enableMapControls();">
 			</div>
 			
-			<!-- The next few chunks of code create the specific map legends. They're directly
-			copy/pasted from carto.com. To add a new one, make your legend in carto, then, in
-			the 'legend' tab of the map-view, view the html source code for your legend. Copy
-			and paste it below.
-				Alternately, you can copy and paste one of the legend div elements from below
-			and reformat it to suit the needs of the contaminant you want to display. -->
+			<img class="legend" id="fluoride_legend" style='display: none'></img>
+			<img class="legend" id="arsenic_legend" style='display: none'></img>
+			<img class="legend" id="risk_legend" style='display: none'></img>
 			
-			<!-- The legend for fluoride -->
-			<div class='cartodb-legend density' id='fluoride_legend' style='display: none'>  
-				<ul>
-					<li class="min" style="text-transform:none" id="f_title"></li>
-					<li class="graph leg" style="border-radius: 0; border:none">
-						<div class="colors">
-							<div class="quartile" style="background-color:#229A00"></div>
-							<div class="quartile" style="background-color:#FF9900"></div>
-							<div class="quartile" style="background-color:#F11810"></div>
-							<div class="quartile" style="background-color:#000000"></div>
-						</div>
-						<div class="colors" style="font-weight:normal; text-align: center">
-							<div class="quartile" style="padding-top: 5px" name="f"></div>
-							<div class="quartile" style="padding-top: 5px" name="f"></div>
-							<div class="quartile" style="padding-top: 5px" name="f"></div>
-							<div class="quartile" style="padding-top: 5px" name="f"></div>
-						</div>
-					</li>
-				</ul>
-			</div>
-			
-			<!-- The legend for arsenic -->
-			<div class='cartodb-legend density' id='arsenic_legend' style='display: none;'>  
-				<ul>
-					<li class="min" id="as_title" style="text-transform:none" ></li>
-					<li class="graph leg" style="border-radius: 0; border:none">
-						<div class="colors">
-							<div class="quartile" style="background-color:#229A00"></div>
-							<div class="quartile" style="background-color:#F11810"></div>
-							<div class="quartile" style="background-color:#000000"></div>
-						</div>
-						<div class="colors" style="font-weight:normal; text-align: center">
-							<div class="quartile" style="padding-top: 5px" name="as"></div>
-							<div class="quartile" style="padding-top: 5px" name="as"></div>
-							<div class="quartile" style="padding-top: 5px" name="as"></div>
-						</div>
-					</li>
-				</ul>
-			</div>
-			
-			<!-- The legend for the Total Risk map -->
-			<div class='cartodb-legend custom' id='risk_legend' style="display: none">	
-				<div class="legend-title", id="risk_title" style="text-transform:none"></div>
-				<ul>
-					<li>
-						<div class="bullet" style="background: #229A00; text-transform:none" name="risk" onclick="easterEggGo();"></div> 
-					</li>
-					<li>
-						<div class="bullet" style="background:#FFA300; text-transform:none" name="risk"></div>
-					</li>
-					<li>
-						<div class="bullet" style="background:#F11810; text-transform:none" name="risk"></div>
-					</li>
-					<li>
-						<div class="bullet" style="background:#000000; text-transform:none" name="risk"></div>
-					</li>
-				</ul>
-			</div>
-			
-			<img id="help_button" style="display: none;" class="toggle_button" onmouseenter="changeHelpSrc('hover')" onmouseleave="changeHelpSrc('leave')" onclick="openHelp()"></img>
+			<img id="help_button" class="toggle_button active" onclick="toggleHelp()"></img>
 			<img id="how_to_read" onmouseenter="disableMapControls();" onmouseleave="enableMapControls();"></img>
-			<img id="x_button" class="toggle_button" src="https://caminosdeagua.github.io/wqm-map/img/xButton2.png" onclick="closeHelp()"></img>
 			
-			
-		</div>	
+		</div>
+		
 		<script>
 			$('#search').bind('keyup',function(event) {
 				var key = String.fromCharCode(event.keyCode);
@@ -169,6 +96,7 @@
 				return false
 			})
 		</script>
+		
 	</body>
 </html>
 			
