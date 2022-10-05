@@ -329,14 +329,14 @@ function plotData(contaminantToShow) {
 function plotMarker(type, contam, data_index, border) {
 	t0_plotMarker = performance.now();
 	if (type == "base" | type == "preSpider") {					// If the point to plot is a base point (with or without spidering data)
-		base.Bins.push(getNextMeasuredBin(AllData, i)); 			// Grab the bin of the point
+		base.Bins.push(getNextMeasuredBin(AllData, data_index)); 			// Grab the bin of the point
 		var iconToUse;
 		if (border[0] == false) {																// if there's no border
 			iconToUse = BASE_ICONS[COLORS[activeContaminant][base.Bins[base.Bins.length-1]]];	// grab the normal icon
 		} else {																				// if there should be a border
 			iconToUse = HISTORICAL_BASE_ICONS[COLORS[activeContaminant][border[1]]][COLORS[activeContaminant][border[2]]];	// grab the bordered icon
 		}
-		var latLng = L.latLng([AllData[i][DATA_NAMES.lat], AllData[i][DATA_NAMES.lng]]); // Grab the latLng of the point
+		var latLng = L.latLng([AllData[data_index][DATA_NAMES.lat], AllData[data_index][DATA_NAMES.lng]]); // Grab the latLng of the point
 		base.Markers.push( 										// Save the appropriate marker
 			L.marker(latLng, {
 			icon: iconToUse,
@@ -344,12 +344,18 @@ function plotMarker(type, contam, data_index, border) {
 			zIndexOffset: BASE_Z_OFFSET
 			})
 			.on('click', function(event) { 						// When the marker is clicked
-				click_lat = event.latlng.lat; 					// Grab the latLng of the cliked point
+				click_lat = event.latlng.lat; 					// Grab the lat of the cliked point
+				click_lng = event.latlng.lng;           // Grab the lng of the cliked point
 																// 	(returns value of marker's center, regardless of where is clicked...)
-				var j = base.Popups.map(function(a) {return a._latlng.lat}).indexOf(click_lat);
-																// this confusing line gets the index in base.Popups
-																//	of the point with the same latitude as the clicked point
-																// 	we'll use that index to access the marker, popup, and label soon.
+				//Loops thorugh the Popups associated with the map, and grab the index of the (first and in theory only) one that matches the
+				//coordinates (lat AND Lng) of the point that was clicked. we'll use that index to access the marker, popup, and label soon.
+				for (var k=0;k<base.Popups.length;k++){
+					if (base.Popups[k].getLatLng().lat === click_lat && base.Popups[k].getLatLng().lng === click_lng){
+						var j = k
+						k=base.Popups.length;
+					}
+				}
+
 				if (type == "base"){ 				// if the marker is a base point without spidered points
 					if(spiderOpen) {				// 	and if another spider is open
 						closeSpider();				//	close that other spider.
@@ -365,7 +371,6 @@ function plotMarker(type, contam, data_index, border) {
 						openSpider(AllData, data_index, contam); 	// 	and open the clicked point's spider!
 					}
 				}
-
 			})
 		);
 		base.Markers[base.Markers.length-1].bindLabel(getLabel("community", i), {
@@ -1067,7 +1072,7 @@ function loadNewSearchResults(key) {
 				var lat = res[i].doc.latitude;
 				var lng = res[i].doc.longitude;
 				if (lat && lng) {
-					dd.innerHTML = dd.innerHTML + "<div class='search-result' onclick='zoomTo("+lat+","+lng+");'><b>"+res[i].ref+"</b></div>";
+					dd.innerHTML = dd.innerHTML + "<div class='search-result' onclick='activateSearchResult("+lat+","+lng+");'><b>"+res[i].ref+"</b></div>";
 				}
 			}
 		} else {							// if no results have been found...
@@ -1077,9 +1082,24 @@ function loadNewSearchResults(key) {
 	}
 }
 
-function zoomTo(lat, lng) {
+function activateSearchResult(lat, lng) {
 	document.getElementById('search-dropdown').style.display = "none";
-	map.setView([lat, lng], 17);
+	map.setView([lat, lng], 15);
+
+	//Artifically triggers a click event, so that the corresponping pop-up (if base type) or spider is shown when selecting search result
+	//However, doing so triggers an other click event elsewhere, which a organic click event does not.
+	//This secondary click event automatically closes the pop-up we just created, if map property closePopupOnClick is true
+	//For the life of me I could not figure out why the artifical and organic events are different, so had to resort to this trick of changing that property
+	//Over, a popup that is open with the search bar will NOT close on click, unlike one which is open by an actual click
+	//So this is not a perfect work around
+	map.options.closePopupOnClick = false;
+	for (var k=0;k<base.Markers.length;k++){
+ 	 if (base.Markers[k].getLatLng().lat === lat && base.Markers[k].getLatLng().lng === lng){
+ 		 base.Markers[k].fire('click',{latlng:L.latLng(lat,lng),originalEvent:new Event('click'),target:base.Markers[k]});
+ 		 k=base.Popups.length;
+ 	 }
+  }
+	map.options.closePopupOnClick = true;
 }
 
 function toggleTileView() {
