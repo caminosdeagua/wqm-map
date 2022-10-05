@@ -56,7 +56,7 @@ var EPS = 0.0001; 						// This epsilon is the acceptable difference in lat or l
 var activeContaminant = -1; 			// A value that indicates the current contaminant being mapped
 
 var base;	 							// Store all info relevant to base points
-var points_valid                        // store the results of pointIsValid() for each entry in AllData		
+var points_valid                        // store the results of pointIsValid() for each entry in AllData
 var dup_indices;						// An array of arrays of the data indices of duplicate points.
 										// 	Each internal array holds points with the same latLng.
 var AllData;							// Global var to hold all data.
@@ -117,9 +117,9 @@ var HISTORICAL_BASE_URLS = [["https://caminosdeagua.github.io/wqm-map/img/0_targ
 							"https://caminosdeagua.github.io/wqm-map/img/red-black.png"],
 							[0,0,0,0,"https://caminosdeagua.github.io/wqm-map/img/4_target.png"]];
 
-var SMALL_ICON_SIZE = [16,16]; 			// The pixel x and y that the final marker icon image is scaled to.
-var LARGE_ICON_SIZE = [24,24];			// A larger marker for the base of the spider
-var EXTRA_SMALL_ICON_SIZE = [16,16]		// extra small icon size for base point without historical data
+var SMALL_ICON_SIZE = [12,12]; 			// The pixel x and y that the final marker icon image is scaled to.
+var LARGE_ICON_SIZE = [18,18];			// A larger marker for the base of the spider
+var EXTRA_SMALL_ICON_SIZE = [12,12];		// extra small icon size for base point without historical data
 var BASE_ICONS = [0,0,0,0,0];				// Initialize an array to hold all the icons, so the images
 var SPIDER_ICONS = [0,0,0,0,0];			//	only need to be grabbed once.
 var BASE_SPIDER_ICONS = [0,0,0,0,0];
