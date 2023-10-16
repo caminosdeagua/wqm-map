@@ -7,14 +7,14 @@
 var TITLE = "Independence Watershed Water Risk Map | Caminos de Agua";
 var MONTHS = ["Jan", "Feb", "Mar", 		// Array of names of months for displaying
 			"Apr", "May", "Jun", 		//	the date in an accessible, clear format,
-			"Jul", "Aug", "Sep", 		// 	even for silly US people who choose to put 
-			"Oct", "Nov", "Dec"];		//	the month first. Ugh. 
+			"Jul", "Aug", "Sep", 		// 	even for silly US people who choose to put
+			"Oct", "Nov", "Dec"];		//	the month first. Ugh.
 
 var CONTAMINANTS = ["Fluoride", "Arsenic", "Total Risk"]; 	// Array with list of contaminants in same order
 															// 	such that CONTAMINANTS[FLUORIDE] = "Fluoride"
 															//	(since FLUORIDE == 0 above...)
 
-var DATA_NAMES = {							// And store the titles of the columns 							
+var DATA_NAMES = {							// And store the titles of the columns
 	date: "date",
 	name: "name",
 	site_type: "site_type",
@@ -28,13 +28,13 @@ var DATA_NAMES = {							// And store the titles of the columns
 	asmethod: "arsenic_testing_method",
 	docs: "document_link",
 	test_org: "GENERAL_TESTING_ORG"
-};												
-															
+};
+
 var DATE = "Date";
-var TEST_ORG = "Testing organization";					
-var SEE_MORE = "Official report(s)";						// This message gets displayed as a link to show 
+var TEST_ORG = "Testing organization";
+var SEE_MORE = "Official report(s)";						// This message gets displayed as a link to show
 															//	more info about the given datapoint
-var ATTRIBUTION = 'Tiles from <a href="http://www.mapbox.com">Mapbox</a> with data from <a href="https://www.openstreetmap.org">OSM</a> | Data hosting on <a href="http://drive.google.com">Google Sheets</a> | Legends by <a href="http://www.carto.com">Carto</a> | <a href="https://caminosdeagua.org/en/donate">Donate</a>';
+var ATTRIBUTION = 'Data hosting on <a href="http://drive.google.com">Google Sheets</a> | <a href="https://caminosdeagua.org/en/donate">Donate</a>';
 
 var NO_DATA_MSG = "";
 
@@ -57,8 +57,8 @@ var TOTAL_WELLS_MSG = "Distinct wells sampled at least once:";
 var TOTAL_POINTS_MSG = "Total number of datapoints collected (includes duplicates for single site):";
 var TOTAL_ORGS_MSG = "Number of testing organizations:";
 var ORG_NAMES_MSG = "All testing organizations:";
-var CONTAMINANT_HEADER_MSG = "----------------";	
-var CONTAM_LIMIT_MSG = "Number of locations whose most recently sampled point is";	
+var CONTAMINANT_HEADER_MSG = "----------------";
+var CONTAM_LIMIT_MSG = "Number of locations whose most recently sampled point is";
 var TOTAL_ABOVE_MSG = "All sites above the WHO limit:";
 var TOTAL_ABOVE_BOTH_MSG = "All sites above the WHO limit for both As & F:";
 var BOTH_MSG = "Arsenic & Fluoride";

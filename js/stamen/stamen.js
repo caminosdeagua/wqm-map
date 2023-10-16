@@ -8,14 +8,14 @@ var SUBDOMAINS = "a. b. c. d.".split(" "),
     MAKE_PROVIDER = function(layer, type, minZoom, maxZoom) {
         return {
             //"url":          ["http://{S}tile.stamen.com/", layer, "/{Z}/{X}/{Y}.", type].join(""),
-			"url": ["https://stamen-tiles-{S}a.ssl.fastly.net/", layer, "/{Z}/{X}/{Y}.", type].join(""),
-			
+			"url": ["https://tiles.stadiamaps.com/tiles/", layer, "/{Z}/{X}/{Y}.", type].join(""),
+
             "type":         type,
             "subdomains":   SUBDOMAINS.slice(),
             "minZoom":      minZoom,
             "maxZoom":      maxZoom,
             "attribution":  [
-                'Map tiles by <a href="http://stamen.com/">Stamen Design</a>, ',
+                'Map tiles by <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a>, ',
                 'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. ',
                 'Data by <a href="http://openstreetmap.org/">OpenStreetMap</a>, ',
                 'under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
@@ -24,7 +24,7 @@ var SUBDOMAINS = "a. b. c. d.".split(" "),
     },
     PROVIDERS =  {
         "toner":        MAKE_PROVIDER("toner", "png", 0, 20),
-        "terrain":      MAKE_PROVIDER("terrain", "png", 0, 18),
+        "terrain":      MAKE_PROVIDER("stamen_terrain", "jpg", 0, 18),
         "terrain-classic": MAKE_PROVIDER("terrain-classic", "png", 0, 18),
         "watercolor":   MAKE_PROVIDER("watercolor", "jpg", 1, 18),
         "trees-cabs-crime": {
@@ -46,8 +46,8 @@ var SUBDOMAINS = "a. b. c. d.".split(" "),
         }
     };
 
-PROVIDERS["terrain-classic"].url = "http://{S}tile.stamen.com/terrain/{Z}/{X}/{Y}.png";
-
+//PROVIDERS["terrain-classic"].url = "http://{S}tile.stamen.com/terrain/{Z}/{X}/{Y}.png";
+PROVIDERS["terrain-classic"].url = "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg";
 // set up toner and terrain flavors
 setupFlavors("toner", ["hybrid", "labels", "lines", "background", "lite"]);
 setupFlavors("terrain", ["background", "labels", "lines"]);
@@ -77,7 +77,8 @@ for (var i = 0; i < odbl.length; i++) {
 
     PROVIDERS[key].retina = true;
     PROVIDERS[key].attribution = [
-        'Map tiles by <a href="http://stamen.com/">Stamen Design</a>, ',
+        'Map tiles by <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> ',
+        'and <a href="https://stamen.com/" target="_blank">Stamen Design</a>, ',
         'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. ',
         'Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, ',
         'under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'

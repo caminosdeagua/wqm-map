@@ -4,17 +4,17 @@
 ////	any point on the map. It's stored in simple strings for ease of 	////
 ////	translation. Enjoy =)												////
 ////////////////////////////////////////////////////////////////////////////////
-var TITLE = "Cuenca de la Indepencia Mapa de Nivel de Peligro del Agua | Caminos de Agua"; 
+var TITLE = "Cuenca de la Indepencia Mapa de Nivel de Peligro del Agua | Caminos de Agua";
 var MONTHS = ["Ene", "Feb", "Mar", 		// Array of names of months for displaying
 			"Abr", "May", "Jun", 			//	the date in an accessible, clear format,
-			"Jul", "Ago", "Sep", 		// 	even for silly US people who choose to put 
-			"Oct", "Nov", "Dic"];	
+			"Jul", "Ago", "Sep", 		// 	even for silly US people who choose to put
+			"Oct", "Nov", "Dic"];
 
-var CONTAMINANTS = ["Fluoruro", "Arsénico", "Nivel de peligro total"]; 	
+var CONTAMINANTS = ["Fluoruro", "Arsénico", "Nivel de peligro total"];
 											// Array with list of contaminants in same order
 											// 	such that CONTAMINANTS[FLUORIDE] = "Fluoride"
 											//	(since FLUORIDE == 0 above...)
-var DATA_NAMES = {							// And store the titles of the columns 							
+var DATA_NAMES = {							// And store the titles of the columns
 	date: "date",
 	name: "name",
 	site_type: "tipo_del_sitio",
@@ -28,13 +28,13 @@ var DATA_NAMES = {							// And store the titles of the columns
 	asmethod: "arsenic_testing_method",
 	docs: "document_link",
 	test_org: "GENERAL_TESTING_ORG"
-};		
+};
 
 var DATE = "Fecha";
 var TEST_ORG = "Institución";
-var SEE_MORE = "Reporte(s) Oficial(es)";	// This message gets displayed as a link to show 
+var SEE_MORE = "Reporte(s) Oficial(es)";	// This message gets displayed as a link to show
 											//	more info about the given datapoint
-var ATTRIBUTION = 'Mapa por <a href="http://www.mapbox.com">Mapbox</a> con datos de <a href="https://www.openstreetmap.org">OSM</a> | Almacenamiento de datos con <a href="http://drive.google.com">Google Sheets</a> | Leyendas por <a href="http://www.carto.com">Carto</a> | <a href="https://caminosdeagua.org/en/donate">Donar</a>';
+var ATTRIBUTION = 'Almacenamiento de datos con <a href="http://drive.google.com">Google Sheets</a> | <a href="https://caminosdeagua.org/en/donate">Donar</a>';
 
 var NO_DATA_MSG = "";
 
@@ -47,7 +47,7 @@ var RISK_LABELS = ["\xa0\xa0\xa0Cumple\xa0con\xa0todas\xa0las\xa0normas",
 var LABELS = [F_LABELS, AS_LABELS];
 
 var F_TITLE = "Fluoruro (mg/L): Límite de OMS = 1.5; Límite Mexicano = 1.5";
-var AS_TITLE = "Arsénico (&mu;g/L): Límite de OMS = 10; Límite Mexicano = 25"; 
+var AS_TITLE = "Arsénico (&mu;g/L): Límite de OMS = 10; Límite Mexicano = 25";
 var RISK_TITLE = "<big>Nivel de peligro total</big><br>Limites de OMS: Fluoruro = 1.5 mg/L; Arsénico = 10 &mu;g/L";
 
 var OLD_DATA_MSG = "<em>\xa0\xa0\xa0\xa0\xa0\xa0DATOS ANTERIORES</em><br>";
@@ -60,8 +60,8 @@ var TOTAL_WELLS_MSG = "Distinct wells sampled at least once:";
 var TOTAL_POINTS_MSG = "Total number of datapoints collected (includes duplicates for single site):";
 var TOTAL_ORGS_MSG = "Number of testing organizations:";
 var ORG_NAMES_MSG = "All testing organizations:";
-var CONTAMINANT_HEADER_MSG = "----------------";	
-var CONTAM_LIMIT_MSG = "Number of locations whose most recently sampled point is";	
+var CONTAMINANT_HEADER_MSG = "----------------";
+var CONTAM_LIMIT_MSG = "Number of locations whose most recently sampled point is";
 var TOTAL_ABOVE_MSG = "All sites above the WHO limit:";
 var TOTAL_ABOVE_BOTH_MSG = "All sites above the WHO limit for both As & F:";
 var BOTH_MSG = "Arsenic & Fluoride";
