@@ -15,6 +15,7 @@ var SUBDOMAINS = "a. b. c. d.".split(" "),
             "minZoom":      minZoom,
             "maxZoom":      maxZoom,
             "attribution":  [
+                // This attribution is overrided below
                 'Map tiles by <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a>, ',
                 'under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. ',
                 'Data by <a href="http://openstreetmap.org/">OpenStreetMap</a>, ',
@@ -23,9 +24,9 @@ var SUBDOMAINS = "a. b. c. d.".split(" "),
         };
     },
     PROVIDERS =  {
-        "toner":        MAKE_PROVIDER("toner", "png", 0, 20),
-        "terrain":      MAKE_PROVIDER("stamen_terrain", "jpg", 0, 18),
-        "terrain-classic": MAKE_PROVIDER("terrain-classic", "png", 0, 18),
+        "stamen_toner":        MAKE_PROVIDER("stamen_toner", "jpg", 0, 20),
+        "stamen_terrain":      MAKE_PROVIDER("stamen_terrain", "jpg", 0, 18),
+        "stamen_terrain_classic": MAKE_PROVIDER("stamen_terrain_classic", "png", 0, 18),
         "watercolor":   MAKE_PROVIDER("watercolor", "jpg", 1, 18),
         "trees-cabs-crime": {
             "url": "http://{S}.tiles.mapbox.com/v3/stamen.trees-cabs-crime/{Z}/{X}/{Y}.png",
@@ -47,29 +48,30 @@ var SUBDOMAINS = "a. b. c. d.".split(" "),
     };
 
 //PROVIDERS["terrain-classic"].url = "http://{S}tile.stamen.com/terrain/{Z}/{X}/{Y}.png";
-PROVIDERS["terrain-classic"].url = "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg";
+//don't do nothing because the only layer we use is the terrain one
+PROVIDERS["stamen_terrain_classic"].url = "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg";
 // set up toner and terrain flavors
-setupFlavors("toner", ["hybrid", "labels", "lines", "background", "lite"]);
-setupFlavors("terrain", ["background", "labels", "lines"]);
+setupFlavors("stamen_toner", ["hybrid", "labels", "lines", "background", "lite"]);
+setupFlavors("stamen_terrain", ["background", "labels", "lines"]);
 
 // toner 2010
-deprecate("toner", ["2010"]);
+deprecate("stamen_toner", ["2010"]);
 
 // toner 2011 flavors
-deprecate("toner", ["2011", "2011-lines", "2011-labels", "2011-lite"]);
+deprecate("stamen_toner", ["2011", "2011-lines", "2011-labels", "2011-lite"]);
 
 var odbl = [
-    "toner",
-    "toner-hybrid",
-    "toner-labels",
-    "toner-lines",
-    "toner-background",
-    "toner-lite",
-    "terrain",
-    "terrain-background",
-    "terrain-lines",
-    "terrain-labels",
-    "terrain-classic"
+    "stamen_toner",
+    "stamen_toner_hybrid",
+    "stamen_toner_labels",
+    "stamen_toner_lines",
+    "stamen_toner_background",
+    "stamen_toner_lite",
+    "stamen_terrain",
+    "stamen_terrain_background",
+    "stamen_terrain_lines",
+    "stamen_terrain_labels",
+    "stamen_terrain_classic"
 ];
 
 for (var i = 0; i < odbl.length; i++) {
@@ -97,7 +99,7 @@ function deprecate(base, flavors) {
     var provider = getProvider(base);
 
     for (var i = 0; i < flavors.length; i++) {
-        var flavor = [base, flavors[i]].join("-");
+        var flavor = [base, flavors[i]].join("_");
         PROVIDERS[flavor] = MAKE_PROVIDER(flavor, provider.type, provider.minZoom, provider.maxZoom);
         PROVIDERS[flavor].deprecated = true;
     }
@@ -110,7 +112,7 @@ function deprecate(base, flavors) {
 function setupFlavors(base, flavors, type) {
     var provider = getProvider(base);
     for (var i = 0; i < flavors.length; i++) {
-        var flavor = [base, flavors[i]].join("-");
+        var flavor = [base, flavors[i]].join("_");
         PROVIDERS[flavor] = MAKE_PROVIDER(flavor, type || provider.type, provider.minZoom, provider.maxZoom);
     }
 }
@@ -201,96 +203,5 @@ if (typeof L === "object") {
     };
 }
 
-/*
- * StamenTileLayer for OpenLayers
- * <http://openlayers.org/>
- *
- * Tested with v2.1x.
- */
-if (typeof OpenLayers === "object") {
-    // make a tile URL template OpenLayers-compatible
-    function openlayerize(url) {
-        return url.replace(/({.})/g, function(v) {
-            return "$" + v.toLowerCase();
-        });
-    }
-
-    // based on http://www.bostongis.com/PrinterFriendly.aspx?content_name=using_custom_osm_tiles
-    OpenLayers.Layer.Stamen = OpenLayers.Class(OpenLayers.Layer.OSM, {
-        initialize: function(name, options) {
-            var provider = getProvider(name),
-                url = provider.url,
-                subdomains = provider.subdomains,
-                hosts = [];
-            if (url.indexOf("{S}") > -1) {
-                for (var i = 0; i < subdomains.length; i++) {
-                    hosts.push(openlayerize(url.replace("{S}", subdomains[i])));
-                }
-            } else {
-                hosts.push(openlayerize(url));
-            }
-            options = OpenLayers.Util.extend({
-                "numZoomLevels":        provider.maxZoom,
-                "buffer":               0,
-                "transitionEffect":     "resize",
-                // see: <http://dev.openlayers.org/apidocs/files/OpenLayers/Layer/OSM-js.html#OpenLayers.Layer.OSM.tileOptions>
-                // and: <http://dev.openlayers.org/apidocs/files/OpenLayers/Tile/Image-js.html#OpenLayers.Tile.Image.crossOriginKeyword>
-                "tileOptions": {
-                    "crossOriginKeyword": null
-                },
-                "attribution": provider.attribution
-            }, options);
-            return OpenLayers.Layer.OSM.prototype.initialize.call(this, name, hosts, options);
-        }
-    });
-}
-
-/*
- * StamenMapType for Google Maps API V3
- * <https://developers.google.com/maps/documentation/javascript/>
- */
-if (typeof google === "object" && typeof google.maps === "object") {
-
-    // Extending Google class based on a post by Bogart Salzberg of Portland Webworks,
-    // http://www.portlandwebworks.com/blog/extending-googlemapsmap-object
-    google.maps.ImageMapType = (function(_constructor){
-        var f = function() {
-            if (!arguments.length) {
-                return;
-            }
-            _constructor.apply(this, arguments);
-        }
-        f.prototype = _constructor.prototype;
-        return f;
-    })(google.maps.ImageMapType);
-
-
-    google.maps.StamenMapType = function(name) {
-        var provider = getProvider(name),
-            subdomains = provider.subdomains;
-        return google.maps.ImageMapType.call(this, {
-            "getTileUrl": function(coord, zoom) {
-                var numTiles = 1 << zoom,
-                    wx = coord.x % numTiles,
-                    x = (wx < 0) ? wx + numTiles : wx,
-                    y = coord.y,
-                    index = (zoom + x + y) % subdomains.length;
-                return provider.url
-                    .replace("{S}", subdomains[index])
-                    .replace("{Z}", zoom)
-                    .replace("{X}", x)
-                    .replace("{Y}", y);
-            },
-            "tileSize": new google.maps.Size(256, 256),
-            "name":     name,
-            "minZoom":  provider.minZoom,
-            "maxZoom":  provider.maxZoom
-        });
-    };
-
-    // FIXME: is there a better way to extend classes in Google land?
-    // Possibly fixed, see above ^^^ | SC
-    google.maps.StamenMapType.prototype = new google.maps.ImageMapType;
-}
 
 })(typeof exports === "undefined" ? this : exports);
