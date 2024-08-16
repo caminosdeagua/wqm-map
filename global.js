@@ -42,7 +42,7 @@ var AS_COLORS = [GREY, GREEN, RED, BLACK];
 var TOTAL_RISK_COLORS = [GREY, GREEN, YELLOW, RED, BLACK];
 var COLORS = [F_COLORS, AS_COLORS, TOTAL_RISK_COLORS];
 
-var F_BINS = [1.49, 2.99, 9.99];		// Store the contamination bins. For fluoride, for example, the
+var F_BINS = [1.00, 2.99, 9.99];		// Store the contamination bins. For fluoride, for example, the
 var AS_BINS = [9.99,24.99]				//	bins are 0-1.5 mg/L, 1.5-4 mg/L, 4-10 mg/L, and >10 mg/L.
 var TOTAL_RISK_BINS = ["combined", FLUORIDE, ARSENIC];
 										// If we're combining contaminants, use the
