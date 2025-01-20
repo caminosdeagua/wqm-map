@@ -4,13 +4,13 @@
 ////	any point on the map. It's stored in simple strings for ease of 	////
 ////	translation. Enjoy =)												////
 ////////////////////////////////////////////////////////////////////////////////
-var TITLE = "Cuenca de la Indepencia Mapa de Nivel de Peligro del Agua | Caminos de Agua";
+var TITLE = "Cuenca Alta del Río Laja Mapa de Nivel de Peligro del Agua | Caminos de Agua";
 var MONTHS = ["Ene", "Feb", "Mar", 		// Array of names of months for displaying
 			"Abr", "May", "Jun", 			//	the date in an accessible, clear format,
 			"Jul", "Ago", "Sep", 		// 	even for silly US people who choose to put
 			"Oct", "Nov", "Dic"];
 
-var CONTAMINANTS = ["Fluoruro", "Arsénico", "Nivel de peligro total"];
+var CONTAMINANTS = ["Fluoruro", "Arsénico", "Riesgo Total"];
 											// Array with list of contaminants in same order
 											// 	such that CONTAMINANTS[FLUORIDE] = "Fluoride"
 											//	(since FLUORIDE == 0 above...)
@@ -84,3 +84,7 @@ var TESTED_BY = "Probado por: ";
 var LEGEND_RISK_URL = "img/legend_risk_ESP.png"
 var LEGEND_F_URL = "img/legend_f_ESP.png"
 var LEGEND_AS_URL = "img/legend_as_ESP.png"
+
+var DETAILS_LEGEND_RISK_URL = "img/details_legend_risk_ESP.png"
+var DETAILS_LEGEND_F_URL = "img/details_legend_f_ESP.png"
+var DETAILS_LEGEND_AS_URL = "img/details_legend_as_ESP.png"

@@ -32,18 +32,18 @@ var TOTAL_RISK = 2; 					//  how to bin markers and draw legends and labels.
 var MAP_TYPES = [FLUORIDE, ARSENIC, TOTAL_RISK];
 
 var GREY = 0;							// Color codes used to determine which color point to plot.
-var GREEN = 1;
+var BLUE = 1;
 var YELLOW = 2;
-var RED = 3;
-var BLACK = 4;
+var ORANGE = 3;
+var BROWN = 4;
 
-var F_COLORS = [GREY, GREEN, YELLOW, RED, BLACK];	// set the order of the colors to be displayed on each map
-var AS_COLORS = [GREY, GREEN, RED, BLACK];
-var TOTAL_RISK_COLORS = [GREY, GREEN, YELLOW, RED, BLACK];
+var F_COLORS = [GREY, BLUE, YELLOW, ORANGE, BROWN];	// set the order of the colors to be displayed on each map
+var AS_COLORS = [GREY, BLUE, ORANGE, BROWN];
+var TOTAL_RISK_COLORS = [GREY, BLUE, YELLOW, ORANGE, BROWN];
 var COLORS = [F_COLORS, AS_COLORS, TOTAL_RISK_COLORS];
 
-var F_BINS = [1.49, 2.99, 9.99];		// Store the contamination bins. For fluoride, for example, the
-var AS_BINS = [9.99,24.99]				//	bins are 0-1.5 mg/L, 1.5-4 mg/L, 4-10 mg/L, and >10 mg/L.
+var F_BINS = [0.99, 2.99, 9.99];		// Store the contamination bins. For fluoride, for example, the
+var AS_BINS = [9.99,49.99]				//	bins are 0-1.5 mg/L, 1.5-4 mg/L, 4-10 mg/L, and >10 mg/L.
 var TOTAL_RISK_BINS = ["combined", FLUORIDE, ARSENIC];
 										// If we're combining contaminants, use the
 										//	form ["combined", contam_1, contam_2, ... , contam_n]
@@ -89,33 +89,17 @@ var STAMEN_MAP_TYPE = "terrain";		// Set which type of stamen map we want as a b
 
 var X_URL = "https://caminosdeagua.github.io/wqm-map/img/xButton_black.png";		// URL for x-button used to close the spider
 
-var BASE_URLS = ["https://caminosdeagua.github.io/wqm-map/img/0_plain.png",	// URLs for point with blue borders
+var PLAIN_POINT_URLS = ["https://caminosdeagua.github.io/wqm-map/img/0_plain.png",	// URLs for points shown wih the plain design (no historical data)
 				"https://caminosdeagua.github.io/wqm-map/img/1_plain.png",
 				"https://caminosdeagua.github.io/wqm-map/img/2_plain.png",
 				"https://caminosdeagua.github.io/wqm-map/img/3_plain.png",
 				"https://caminosdeagua.github.io/wqm-map/img/4_plain.png"];
 
-var SPIDER_URLS = ["https://caminosdeagua.github.io/wqm-map/img/0_plain.png",	// URLs for point with blue borders
-				"https://caminosdeagua.github.io/wqm-map/img/1_plain.png",
-				"https://caminosdeagua.github.io/wqm-map/img/2_plain.png",
-				"https://caminosdeagua.github.io/wqm-map/img/3_plain.png",
-				"https://caminosdeagua.github.io/wqm-map/img/4_plain.png"];
-
-var HISTORICAL_BASE_URLS = [["https://caminosdeagua.github.io/wqm-map/img/0_target.png",		// URLs for points with specific borders
-							"https://caminosdeagua.github.io/wqm-map/img/grey-green.png",
-							"https://caminosdeagua.github.io/wqm-map/img/grey-yellow.png",
-							"https://caminosdeagua.github.io/wqm-map/img/grey-red.png",
-							"https://caminosdeagua.github.io/wqm-map/img/grey-black.png"],
-							[0,"https://caminosdeagua.github.io/wqm-map/img/1_target.png",
-							"https://caminosdeagua.github.io/wqm-map/img/green-yellow.png",
-							"https://caminosdeagua.github.io/wqm-map/img/green-red.png",
-							"https://caminosdeagua.github.io/wqm-map/img/green-black.png"],
-							[0,0,"https://caminosdeagua.github.io/wqm-map/img/2_target.png",
-							"https://caminosdeagua.github.io/wqm-map/img/yellow-red.png",
-							"https://caminosdeagua.github.io/wqm-map/img/yellow-black.png"],
-							[0,0,0,"https://caminosdeagua.github.io/wqm-map/img/3_target.png",
-							"https://caminosdeagua.github.io/wqm-map/img/red-black.png"],
-							[0,0,0,0,"https://caminosdeagua.github.io/wqm-map/img/4_target.png"]];
+var TARGET_POINT_URLS = ["https://caminosdeagua.github.io/wqm-map/img/0_target.png", // URLs for points shown wih the target design ( historical data)
+				"https://caminosdeagua.github.io/wqm-map/img/1_target.png",
+				"https://caminosdeagua.github.io/wqm-map/img/2_target.png",
+				"https://caminosdeagua.github.io/wqm-map/img/3_target.png",
+				"https://caminosdeagua.github.io/wqm-map/img/4_target.png"];
 
 var SMALL_ICON_SIZE = [12,12]; 			// The pixel x and y that the final marker icon image is scaled to.
 var LARGE_ICON_SIZE = [18,18];			// A larger marker for the base of the spider
@@ -123,10 +107,8 @@ var EXTRA_SMALL_ICON_SIZE = [12,12];		// extra small icon size for base point wi
 var BASE_ICONS = [0,0,0,0,0];				// Initialize an array to hold all the icons, so the images
 var SPIDER_ICONS = [0,0,0,0,0];			//	only need to be grabbed once.
 var BASE_SPIDER_ICONS = [0,0,0,0,0];
-var HISTORICAL_BASE_ICONS = [[0,0,0,0,0],[0,0,0,0],[0,0,0],[0,0],[0]];
-
-var HELP_URL = "https://caminosdeagua.github.io/wqm-map/img/questionMark2.png";
-var HELP_URL_HOVER = "https://caminosdeagua.github.io/wqm-map/img/questionMark2Hover.png"
+var HISTORICAL_BASE_ICONS = [0,0,0,0,0];
+//var HISTORICAL_BASE_ICONS = [[0,0,0,0,0],[0,0,0,0],[0,0,0],[0,0],[0]];
 
 ////////////////////
 var MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoiY2FtaW5vc2RlYWd1YSIsImEiOiJjam05ZmNybGQ1MjJhM3FwNGl5enp4ZWd3In0.lZHL87iSngKxPJscOv3RXQ";
@@ -138,9 +120,9 @@ var TILE_LAYER = false;
 ///////////////////////////
 
 
-
-var SATELLITE_TILE_THUMBNAIL_URL = "https://caminosdeagua.github.io/wqm-map/img/satellite-thumbnail.PNG";
-var BASIC_TILE_THUMBNAIL_URL = "https://caminosdeagua.github.io/wqm-map/img/streets-thumbnail.PNG";
+// Note used at the moment
+//var SATELLITE_TILE_THUMBNAIL_URL = "https://caminosdeagua.github.io/wqm-map/img/satellite-thumbnail.PNG";
+//var BASIC_TILE_THUMBNAIL_URL = "https://caminosdeagua.github.io/wqm-map/img/streets-thumbnail.PNG";
 
 var MAX_SEARCH_LENGTH = 6;
 

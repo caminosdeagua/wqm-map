@@ -1,6 +1,6 @@
 /* adds style the html body and map div objects */
 html, body {width:100%; height:100%; padding: 0; margin: 0; font: 12px/1.5 "Helvetica Neue",Arial,Helvetica,sans-serif;}
-#WaterMap { width: 100%; height:100%; background: #273386;}
+#WaterMap { width: 100%; height:100%; background: #273386; position: relative;}
 
 h1, h2, h3, h4, h5, h6 {
 	--return-height: 8px;
@@ -81,14 +81,14 @@ h5 {
 	bottom: 6px;
 }
 
-/* The next bunch of CSS definitions are for the dropdown menu that 
+/* The next bunch of CSS definitions are for the dropdown menu that
 allows the user to select the relevant contaminant. */
 .dropbtn {
 	background-color: #FFFFFF;
 	color: #000000;
 	padding: 12px;
 	font-size: 14px;
-	cursor: pointer; 	
+	cursor: pointer;
 	box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.3);
 	border: 0px solid;
 	border-radius: 6px;
@@ -100,10 +100,10 @@ allows the user to select the relevant contaminant. */
 }
 
 .dropdown {
-	position: relative;
+	position: absolute;
 	display: inline-block;
 	top: 14px;
-	left: 56px;
+	left: 50px;
 	z-index: 99;
 }
 
@@ -135,21 +135,6 @@ allows the user to select the relevant contaminant. */
 	display: block;
 }
 
-img.legend {
-	position: fixed;
-	width: 400px;
-	z-index: 99;
-	bottom: 22px;
-	right: 5px
-}
-
-@media only screen and (max-width: 445px) {
-	img.legend {
-		width: 90%;
-	}
-}
-	
-
 #how_to_read {
 	display: block;
 	z-index: 30000;
@@ -158,22 +143,24 @@ img.legend {
 	top: 20px;
 	height: 200px;
 	box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
-	border-radius: 5%
 }
 
 #how_to_read.inactive{
 	display: none;
 }
 
+#help_button {
+	right: 30px;
+	top: 30px
+}
+
 .toggle_button {
 	height: 40px;
-	content: url('https://caminosdeagua.github.io/wqm-map/img/HowToRead_QuestionMark.png');
+	content: url('../img/Button_QuestionMark.png'); // I don't know about that whole vide of setting URLs via CSS...
 	display: block;
 	z-index: 30002;
 	position: absolute;
-	right: 30px;
-	top: 30px;
-	box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3); 
+	box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
 	-moz-box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
 	-webkit-box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
 	-o-box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
@@ -181,13 +168,13 @@ img.legend {
 }
 
 .toggle_button:hover {
-	content: url('https://caminosdeagua.github.io/wqm-map/img/HowToRead_QuestionMark_hover.png');
+	content: url('../img/Button_QuestionMark_hover.png');
 	cursor: pointer;
 }
 
 .toggle_button.active {
 	height: 30px;
-	content: url('https://caminosdeagua.github.io/wqm-map/img/howToRead_X.png');
+	content: url('../img/Button_X.png');
 	box-shadow: none;
 	-moz-box-shadow: none;
 	-webkit-box-shadow: none;
@@ -195,14 +182,75 @@ img.legend {
 }
 
 .toggle_button.active:hover {
-	content: url('https://caminosdeagua.github.io/wqm-map/img/howToRead_X_hover.png');	
+	content: url('../img/Button_X_hover.png');
+}
+
+img.legend {
+	width: 400px;
+}
+
+@media only screen and (max-width: 445px) {
+	img.legend {
+		width: 90%;
+	}
+}
+
+.legend_div {
+	position: absolute;
+	bottom: 22px;
+	right: 5px;
+	z-index: 99;
+}
+
+.legend_div.inactive {
+	display: none;
+}
+
+img.details_legend {
+	width:400px
+}
+
+#details_button_open {
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	height: 30px;
+	content: url('../img/Button_QuestionMark.png');
+	display: block;
+	z-index: 30002;
+	box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
+	-moz-box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
+	-webkit-box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
+	-o-box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
+	border-radius: 20px;
+}
+
+#details_button_open:hover{
+	content: url('../img/Button_QuestionMark_hover.png');
+	cursor: pointer;
+}
+
+#details_button_close {
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	height: 30px;
+	content: url('../img/Button_X.png');
+	display: block;
+	z-index: 30002;
+	border-radius: 20px;
+}
+
+#details_button_close:hover{
+	content: url('../img/Button_X_hover.png');
+	cursor: pointer;
 }
 
 #search{
 	width: 180px;
 	display: inline-block;
 	position: fixed;
-	left: 176px;
+	left: 200px;
 	top: 14px;
 	z-index: 101;
 	color: #bbb;
@@ -223,14 +271,12 @@ img.legend {
 }
 
 .search-result{
-	
 	display: inline-block;
 	position: relative;
 	vertical-align: middle;
 	height: 20px;
 	width: calc(100% - 12px);
 	padding: 5px 0px 5px 12px;
-	
 }
 
 .search-result:hover {
@@ -244,7 +290,7 @@ img.legend {
 	z-index: 100;
 	position: fixed;
 	left: 176px;
-	padding-top: 20px;
+	padding-top: 235px;
 	box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.3);
 }
 
@@ -257,7 +303,7 @@ div.container {
 	--spacing: 12px;
 	z-index: 3;
 	position: absolute;
-	display: inline-block; 
+	display: inline-block;
 	left: var(--spacing);
 	bottom: var(--spacing);
 	opacity: 1;
@@ -271,7 +317,7 @@ img.img-button-image {
 	transition: 0.5s ease;
 	position: relative;
 	transition: .5s ease;
-	
+
 }
 
 img#caminos-logo {
@@ -355,6 +401,3 @@ div#map-tile-selector-div:hover .img-button-middle {
 	position: relative;
 	width: 100%;
 }
-
-
-

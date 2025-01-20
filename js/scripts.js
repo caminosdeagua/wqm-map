@@ -23,28 +23,26 @@ var countPointIsValidExec = 0
 ////////////////////////////
 
 function setGlobals() {
-	for (var k=0; k<BASE_URLS.length; k++) {  	// Grab all the icons with correct size.
+	for (var k=0; k<PLAIN_POINT_URLS.length; k++) {  	// Grab all the icons with correct size.
 		BASE_ICONS[k] = L.icon({ 			// 	to be used when displaying the base markers
-			iconUrl: BASE_URLS[k],
+			iconUrl: PLAIN_POINT_URLS[k],
 			iconSize: EXTRA_SMALL_ICON_SIZE
 		});
 		SPIDER_ICONS[k] = L.icon({ 			//	and the spidered markers
-			iconUrl: SPIDER_URLS[k],
+			iconUrl: PLAIN_POINT_URLS[k],
 			iconSize: SMALL_ICON_SIZE
 		});
 		BASE_SPIDER_ICONS[k] = L.icon({		// 	and the markers at the base of the spider.
-			iconUrl: SPIDER_URLS[k],
+			iconUrl: PLAIN_POINT_URLS[k],
 			iconSize: LARGE_ICON_SIZE
 		});
 	};
 
-	for (var i=0; i<HISTORICAL_BASE_URLS.length; i++) {
-		for (var j=i; j<HISTORICAL_BASE_URLS[i].length; j++) {
-			HISTORICAL_BASE_ICONS[i][j] = L.icon({
-				iconUrl: HISTORICAL_BASE_URLS[i][j],
-				iconSize: SMALL_ICON_SIZE
-			});
-		}
+  for (var i=0; i<TARGET_POINT_URLS.length; i++) {
+		HISTORICAL_BASE_ICONS[i] = L.icon({
+			iconUrl: TARGET_POINT_URLS[i],
+		 	iconSize: SMALL_ICON_SIZE
+		});
 	}
 
 	X_ICON = L.icon({ 					// define an icon that can be clicked to close the spider
@@ -78,12 +76,17 @@ function setGlobals() {
 
 	document.getElementById("overlay_title").innerHTML = DISPLAY_TITLE;
 	document.getElementById("overlay_msg").innerHTML = DISPLAY_MSG;
+
 	$("#overlay").corner("keep 16px cc:#222");	// adjust inner border corners
 	$("#overlay").css("display", "inline-block");	// display overlay once stuff loads!
 
 	document.getElementById("risk_legend").src = LEGEND_RISK_URL;
 	document.getElementById("fluoride_legend").src = LEGEND_F_URL;
 	document.getElementById("arsenic_legend").src = LEGEND_AS_URL;
+
+	document.getElementById("details_risk_legend").src = DETAILS_LEGEND_RISK_URL;
+	document.getElementById("details_fluoride_legend").src = DETAILS_LEGEND_F_URL;
+	document.getElementById("details_arsenic_legend").src = DETAILS_LEGEND_AS_URL;
 }
 
 
@@ -98,8 +101,7 @@ function init() {
 	initMap(); 					// Initialize and display the map object
 	applyBaseMap(MAPBOX_STYLES["default"]); 			// Apply the base tiles to the map
 	loadData();
-
-
+	document.title = TITLE
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,12 +297,12 @@ function plotData(contaminantToShow) {
 				};
 
 				if (!presentIn2dArray(dup_indices, i)[0]) {					// plot the base data with no history
-					var border = [false, 0, 0]; 							// use the normal white border on the base points w/o history
-					plotMarker("base", contaminantToShow, i, border, dup_indices);
+					var target = [false,0]; // use the normal icon design (plain) on the base points w/o history
+					plotMarker("base", contaminantToShow, i, target, dup_indices);
 				} else if (presentIn2dArray(dup_indices, i)[1][1] == 0) {	// plot the base data with historical data
 					var bin = getBin(i, BINS[contaminantToShow]);			// define the base bin as the bin of the base point
-					var border = [true, bin, bin];							// when plotting the point show the same border as the base point
-					plotMarker("preSpider", contaminantToShow, i, border, dup_indices);
+					var target = [true, bin]; 		// use the target design on base points with history
+					plotMarker("preSpider", contaminantToShow, i, target, dup_indices);
 				} else {
 					// Do stuff to the historic points, if you'd like, here.
 				};
@@ -334,7 +336,7 @@ function plotMarker(type, contam, data_index, border) {
 		if (border[0] == false) {																// if there's no border
 			iconToUse = BASE_ICONS[COLORS[activeContaminant][base.Bins[base.Bins.length-1]]];	// grab the normal icon
 		} else {																				// if there should be a border
-			iconToUse = HISTORICAL_BASE_ICONS[COLORS[activeContaminant][border[1]]][COLORS[activeContaminant][border[2]]];	// grab the bordered icon
+			iconToUse = HISTORICAL_BASE_ICONS[COLORS[activeContaminant][border[1]]];	// grab the bordered icon
 		}
 		var latLng = L.latLng([AllData[data_index][DATA_NAMES.lat], AllData[data_index][DATA_NAMES.lng]]); // Grab the latLng of the point
 		base.Markers.push( 										// Save the appropriate marker
@@ -477,7 +479,8 @@ function getBin(index, bins) {
 		};								//	that the marker belongs in bin 0, the default value of realBin.
 	} else if (bins[0] == "combined") { // This section deals with the case where we're
 										// 	aggregating multiple contaminants into a "risk scale."
-
+										// Summing-up: realBin will be the max of the bins that correspond to the F and As values''
+										// If F is 2 (YELLOW), and As is 3 (ORANGE), then realBin would be 3, and the total_risk point will show as ORANGE on the map
 		for (var contam = 0; contam<values.length; contam++) {						// loop through the contaminants
 			for (var level = 0; level<COLORS[contam].length; level++) {				// within each contaminant, loop through the bin cutoffs
 				if (values[contam] > BINS[pureBins[contam]][level]) {				// if the value exceeds the cutoff level:
@@ -807,6 +810,9 @@ function hideLegend() {
 	document.getElementById('fluoride_legend').style.display = 'none';
 	document.getElementById('arsenic_legend').style.display = 'none';
 	document.getElementById('risk_legend').style.display = 'none';
+	document.getElementById('details_fluoride_legend').style.display = 'none';
+	document.getElementById('details_arsenic_legend').style.display = 'none';
+	document.getElementById('details_risk_legend').style.display = 'none';
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -817,10 +823,13 @@ function hideLegend() {
 function showLegend(contam) {
 	if (contam == FLUORIDE) {
 		document.getElementById('fluoride_legend').style.display = 'block';
+		document.getElementById('details_fluoride_legend').style.display = 'block';
 	} else if (contam == ARSENIC) {
 		document.getElementById('arsenic_legend').style.display = 'block';
+		document.getElementById('details_arsenic_legend').style.display = 'block';
 	} else if (contam == TOTAL_RISK) {
 		document.getElementById('risk_legend').style.display = 'block';
+		document.getElementById('details_risk_legend').style.display = 'block';
 	};
 }
 
@@ -856,21 +865,6 @@ $(document).bind('keypress', function (event) {
 	}
 })
 
-
-////////////////////////////////////////////////////////////////////////////////
-////					 	changeHelpSrc FUNCTION 						  	////
-//// 	Changes the color of the help icon depending on if there's a mouse	////
-////	hovering over it.													////
-////////////////////////////////////////////////////////////////////////////////
-
-//function changeHelpSrc(type) {
-//	if (type == "hover") {
-//		document.getElementById("help_button").src = HELP_URL_HOVER;
-//	} else {
-//		document.getElementById("help_button").src = HELP_URL;
-//	}
-//}
-
 ////////////////////////////////////////////////////////////////////////////////
 ////					 	openHelp/closeHelp FUNCTION 				  	////
 //// 			Opens/closes the help dialog box.							////
@@ -881,6 +875,10 @@ function toggleHelp() {
 	$('#how_to_read').toggleClass('inactive');
 }
 
+function toggleDetails() {
+	$('#legend_div_base').toggleClass('inactive');
+	$('#legend_div_details').toggleClass('inactive');
+}
 
 //function openHelp() {
 //	document.getElementById("help_button").style.display = "none";
@@ -1102,17 +1100,20 @@ function activateSearchResult(lat, lng) {
 	map.options.closePopupOnClick = true;
 }
 
-function toggleTileView() {
-	if (CURRENT_TILE_ID == MAPBOX_IDS["basic"]) {
-		applyBaseMap(MAPBOX_IDS["satellite"]);
-		document.getElementById("img-button-text").innerHTML = BASIC_MAP_VIEW;
-		document.getElementById("map-tile-selector").src = BASIC_TILE_THUMBNAIL_URL;
-	} else {
-		applyBaseMap(MAPBOX_IDS["basic"]);
-		document.getElementById("img-button-text").innerHTML = SATELLITE_MAP_VIEW;
-		document.getElementById("map-tile-selector").src = SATELLITE_TILE_THUMBNAIL_URL;
-	}
-}
+//Not in use anymore: used to let the user select which base map they wanted to display
+//But became useless when we tiles swapped to stadia (only one base map supported)
+
+// function toggleTileView() {
+// 	if (CURRENT_TILE_ID == MAPBOX_IDS["basic"]) {
+// 		applyBaseMap(MAPBOX_IDS["satellite"]);
+// 		document.getElementById("img-button-text").innerHTML = BASIC_MAP_VIEW;
+// 		document.getElementById("map-tile-selector").src = BASIC_TILE_THUMBNAIL_URL;
+// 	} else {
+// 		applyBaseMap(MAPBOX_IDS["basic"]);
+// 		document.getElementById("img-button-text").innerHTML = SATELLITE_MAP_VIEW;
+// 		document.getElementById("map-tile-selector").src = SATELLITE_TILE_THUMBNAIL_URL;
+// 	}
+// }
 
 function beginUserExperience() {
 	$("#overlay").fadeOut(800, function() {});	// fade out the overlay

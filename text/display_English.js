@@ -4,7 +4,7 @@
 ////	any point on the map. It's stored in simple strings for ease of 	////
 ////	translation. Enjoy =)												////
 ////////////////////////////////////////////////////////////////////////////////
-var TITLE = "Independence Watershed Water Risk Map | Caminos de Agua";
+var TITLE = "Upper Río Laja Watershed Water Risk Map | Caminos de Agua";
 var MONTHS = ["Jan", "Feb", "Mar", 		// Array of names of months for displaying
 			"Apr", "May", "Jun", 		//	the date in an accessible, clear format,
 			"Jul", "Aug", "Sep", 		// 	even for silly US people who choose to put
@@ -40,7 +40,7 @@ var NO_DATA_MSG = "";
 
 var F_LABELS = ["0-1.5", "1.5-3", "3-10", "10+"];
 var AS_LABELS = ["0-10","10-25","25+"];
-var RISK_LABELS = ["\xa0\xa0\xa0Meets\xa0all\xa0standards",
+var RISK_LABELS = ["\xa0\xa0\xa0MeetXXXXXXXXXXXXXXXXXXXXXXXXXxxs\xa0all\xa0standards",
 "\xa0\xa0\xa0Not\xa0safe\xa0for\xa0children\xa0under\xa0the\xa0age\xa0of\xa0seven",
 "\xa0\xa0\xa0Dangerous\xa0if\xa0consumed\xa0regularly",
 "\xa0\xa0\xa0Potentially\xa0acutely\xa0toxic!"];
@@ -49,7 +49,9 @@ var LABELS = [F_LABELS, AS_LABELS];
 
 var OLD_DATA_MSG = "<em>\xa0\xa0\xa0\xa0\xa0\xa0\xa0HISTORICAL DATA</em><br>";
 
-var HOW2READ_URL = "https://caminosdeagua.github.io/wqm-map/img/howToRead_ENG.png";
+//var HOW2READ_URL = "https://caminosdeagua.github.io/wqm-map/img/howToRead_ENG.png";
+var HOW2READ_URL = "img/howToRead_ENG.png";
+
 
 var PRINTING_SUMMARY_MSG = "\n-----***-----***-----***-----***-----***-----***-----\nGreat job, you hacker you! Enjoy the summary...\n-----***-----***-----***-----***-----***-----***-----\n "
 var TOTAL_SITES_MSG = "Distinct sites (wells, taps, pipa, etc.) sampled at least once:";
@@ -81,3 +83,7 @@ var TESTED_BY = "Tested by: ";
 var LEGEND_RISK_URL = "img/legend_risk_ENG.png"
 var LEGEND_F_URL = "img/legend_f_ENG.png"
 var LEGEND_AS_URL = "img/legend_as_ENG.png"
+
+var DETAILS_LEGEND_RISK_URL = "img/details_legend_risk_ENG.png"
+var DETAILS_LEGEND_F_URL = "img/details_legend_f_ENG.png"
+var DETAILS_LEGEND_AS_URL = "img/details_legend_as_ENG.png"

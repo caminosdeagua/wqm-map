@@ -12,10 +12,10 @@ js.type = "text/javascript";
 
 if (post_hash == "es") {
 	js.src = "text/display_Spanish.js";
-	$('head').append('<link rel="stylesheet" type="text/css" href="styles/map_styles_Spanish.css">');
+	//$('head').append('<link rel="stylesheet" type="text/css" href="styles/map_styles_English.css">');
 } else {
 	js.src = "text/display_English.js";
-	$('head').append('<link rel="stylesheet" type="text/css" href="styles/map_styles_English.css">');	
+	//$('head').append('<link rel="stylesheet" type="text/css" href="styles/map_styles_English.css">');
 }
 
 head.appendChild(js);
